@@ -39,29 +39,29 @@ fun VideoCard(
         colors = CardDefaults.cardColors(BACKGROUND_COLOR),
         border = BorderStroke(0.2.dp, ON_BACKGROUND_COLOR),
     ) {
-        Row(modifier.fillMaxWidth().height(140.dp)) {
+        Row(modifier = Modifier.fillMaxWidth().height(140.dp)) {
             Image(
                 bitmap = convertBase64ToBitmap(imageUrl),
                 contentDescription = "Image",
                 contentScale = ContentScale.FillBounds,
-                modifier = modifier.height(140.dp).width(90.dp)
+                modifier = Modifier.height(140.dp).width(90.dp)
             )
-            Column(modifier = modifier.fillMaxSize().padding(horizontal = 10.dp),
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
                 verticalArrangement = Arrangement.SpaceEvenly) {
                 Text(
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     text = reelResponse.title.toString(),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.labelLarge,
                     text = "Quality: ${media.quality}",
                 )
                 Text(
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.labelLarge,
                     text = "Size: ${media.formattedSize}",
                 )
