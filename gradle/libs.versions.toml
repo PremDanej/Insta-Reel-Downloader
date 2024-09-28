@@ -14,6 +14,7 @@ converterGson = "2.9.0"
 ksp = "1.9.0-1.0.12"
 hiltAndroid = "2.49"
 hiltNavigationCompose = "1.2.0" # HiltNavigation
+coilCompose = "2.7.0" #Coil
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,6 +47,9 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 
 # ViewModel
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
+
+# Coil
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
