@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">IG Downloader</string>
+    <string name="lbl_download_now">Download Now</string>
+    <string name="lbl_get">Get</string>
 </resources>
