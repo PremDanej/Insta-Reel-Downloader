@@ -2,6 +2,7 @@
 
 - Instagram Reel Downloader is an Android App.
 - This is build using Jetpack Compose framework.
+- Easy to download and use.
 
 ### How to use?
 
