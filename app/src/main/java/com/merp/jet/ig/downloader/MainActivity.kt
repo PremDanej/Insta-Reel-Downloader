@@ -46,10 +46,8 @@ fun InstaReelDownloaderApp() {
     // Permission
     val storagePermissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                Toast.makeText(context, "Storage Permission Granted", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(context, "Storage Permission Denied", Toast.LENGTH_LONG).show()
+            if (!isGranted) {
+                Toast.makeText(context, "Access Denied", Toast.LENGTH_LONG).show()
             }
         }
 
