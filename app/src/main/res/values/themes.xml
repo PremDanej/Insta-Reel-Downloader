@@ -2,4 +2,9 @@
 <resources>
 
     <style name="Theme.IGDownloader" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="SplashTheme" parent="Theme.IGDownloader">
+        <item name="android:statusBarColor">@color/lightBg</item>
+        <item name="android:windowBackground" >@drawable/drawable_splash_screen</item>
+    </style>
 </resources>
