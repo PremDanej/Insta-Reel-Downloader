@@ -22,7 +22,7 @@
         android:theme="@style/Theme.IGDownloader"
         tools:targetApi="31">
         <activity
-            android:name=".SplashActivity"
+            android:name=".screens.splash.SplashActivity"
             android:exported="true"
             android:theme="@style/SplashTheme">
             <intent-filter>
