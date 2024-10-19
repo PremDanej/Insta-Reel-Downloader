@@ -24,7 +24,7 @@ fun LoadingButton(text: String, enabled: Boolean, isLoading: Boolean, onclick: (
         if (isLoading) {
             CircularProgressBar()
         } else {
-            Text(text = text)
+            Text(text = text, color = MaterialTheme.colorScheme.background)
         }
     }
 }
