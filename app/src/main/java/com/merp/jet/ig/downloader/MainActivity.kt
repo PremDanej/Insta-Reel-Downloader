@@ -9,37 +9,46 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import com.merp.jet.ig.downloader.screens.reel.ReelScreen
+import com.merp.jet.ig.downloader.navigation.InstaReelNavigation
 import com.merp.jet.ig.downloader.ui.theme.IGDownloaderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            IGDownloaderTheme {
-                InstaReelDownloaderApp()
+            val isSystemIsDark = isSystemInDarkTheme()
+            val isDark = remember { mutableStateOf(isSystemIsDark) }
+            IGDownloaderTheme(darkTheme = isDark.value) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    InstaReelDownloaderApp(isDark)
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InstaReelDownloaderApp() {
+fun InstaReelDownloaderApp(isDark: MutableState<Boolean>) {
 
     val context: Context = LocalContext.current
 
@@ -54,13 +63,5 @@ fun InstaReelDownloaderApp() {
     LaunchedEffect(Unit) {
         storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) })
-        }) { innerPadding ->
-        Surface(Modifier.padding(innerPadding)) {
-            ReelScreen()
-        }
-    }
+    InstaReelNavigation(isDark)
 }
