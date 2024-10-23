@@ -1,6 +1,7 @@
 package com.merp.jet.ig.downloader.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -10,7 +11,7 @@ import com.merp.jet.ig.downloader.screens.save.SaveScreen
 import com.merp.jet.ig.downloader.screens.setting.SettingScreen
 
 @Composable
-fun InstaReelNavigation() {
+fun InstaReelNavigation(isDark: MutableState<Boolean>) {
 
     val navController = rememberNavController()
 
@@ -26,7 +27,7 @@ fun InstaReelNavigation() {
             SaveScreen(navController)
         }
         composable(route = InstaReelScreens.SettingScreen.name) {
-            SettingScreen(navController)
+            SettingScreen(navController, isDark)
         }
     }
 }
