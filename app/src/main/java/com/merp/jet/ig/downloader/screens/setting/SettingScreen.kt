@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -35,8 +36,28 @@ fun SettingScreen(
                 .background(color = MaterialTheme.colorScheme.background),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-        ) { 
-            Text(text = "Setting Screen")
+        ) {
+            ChangeTheme(checked = isDark) {
+                isDark.value = it
+            }
         }
+    }
+}
+
+@Composable
+fun ChangeTheme(checked: MutableState<Boolean>, onClick: (Boolean) -> Unit = {}) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        Arrangement.Center,
+        Alignment.CenterHorizontally,
+    ) {
+        Switch(
+            checked = checked.value,
+            onCheckedChange = {
+                onClick(it)
+            }
+        )
     }
 }
