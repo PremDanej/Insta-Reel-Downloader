@@ -55,7 +55,10 @@ fun SettingScreen(
 @Preview
 @Composable
 fun ThemeOption(modifier: Modifier = Modifier) {
-    val themeOption = listOf("System default", "Light", "Dark")
+    val themeOption = listOf("System default",
+        stringResource(R.string.lbl_light_mode),
+        stringResource(R.string.lbl_dark_mode)
+    )
     val (selectOption, onOptionSelected) = remember {
         mutableStateOf(themeOption[0])
     }
