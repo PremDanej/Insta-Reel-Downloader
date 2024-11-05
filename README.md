@@ -22,3 +22,6 @@
 | Gradle         | 8.7     |
 
 ### Screenshot 
+
+- #### Light Mode
+- #### Dark Mode
