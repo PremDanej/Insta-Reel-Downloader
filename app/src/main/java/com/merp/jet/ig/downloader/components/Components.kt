@@ -1,15 +1,14 @@
 package com.merp.jet.ig.downloader.components
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.Icons.Default
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -43,13 +42,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.merp.jet.ig.downloader.R
-import com.merp.jet.ig.downloader.navigation.InstaReelScreens
+import com.merp.jet.ig.downloader.navigation.InstaReelScreens.AboutScreen
+import com.merp.jet.ig.downloader.navigation.InstaReelScreens.SaveScreen
+import com.merp.jet.ig.downloader.navigation.InstaReelScreens.SettingScreen
+
+val BACKGROUND_COLOR: Color @Composable get() = MaterialTheme.colorScheme.background
+val ON_BACKGROUND_COLOR: Color @Composable get() = MaterialTheme.colorScheme.onBackground
 
 @Composable
 fun CircularProgressBar(modifier: Modifier = Modifier) {
     CircularProgressIndicator(
         modifier = modifier.size(24.dp),
-        color = MaterialTheme.colorScheme.onBackground
+        color = ON_BACKGROUND_COLOR
     )
 }
 
@@ -60,7 +64,7 @@ fun LoadingButton(text: String, enabled: Boolean, isLoading: Boolean, onclick: (
         if (isLoading) {
             CircularProgressBar()
         } else {
-            Text(text = text, color = MaterialTheme.colorScheme.background)
+            Text(text = text, color = BACKGROUND_COLOR)
         }
     }
 }
@@ -70,12 +74,10 @@ fun LoadingButton(text: String, enabled: Boolean, isLoading: Boolean, onclick: (
 fun TopActionBar(
     title: String = stringResource(R.string.app_name),
     isMainScreen: Boolean = true,
-    icon: ImageVector = Icons.Default.Favorite,
+    icon: ImageVector = Default.Favorite,
     navController: NavController,
     onBackPressed: () -> Unit = {}
 ) {
-    val backgroundColor: Color = MaterialTheme.colorScheme.background
-    val onBackgroundColor: Color = MaterialTheme.colorScheme.onBackground
     val showDialog = remember { mutableStateOf(false) }
     if (showDialog.value) {
         ShowSettingDropDownMenu(showDialog, navController)
@@ -83,33 +85,30 @@ fun TopActionBar(
 
     TopAppBar(
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-
-                IconButton(
-                    onClick = {
-                        onBackPressed()
-                    },
-                    enabled = !isMainScreen
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = "Icon",
-                        tint = onBackgroundColor
-                    )
-                }
-                Text(text = title, color = onBackgroundColor, fontWeight = FontWeight.SemiBold)
+            Text(text = title, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.SemiBold)
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = { onBackPressed() },
+                enabled = !isMainScreen
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "Icon",
+                    tint = ON_BACKGROUND_COLOR
+                )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(backgroundColor),
+        colors = TopAppBarDefaults.topAppBarColors(BACKGROUND_COLOR),
         actions = {
             if (isMainScreen) {
                 IconButton(onClick = {
                     showDialog.value = true
                 }) {
                     Icon(
-                        imageVector = Icons.Default.MoreVert,
+                        imageVector = Default.MoreVert,
                         contentDescription = "Icon",
-                        tint = onBackgroundColor
+                        tint = ON_BACKGROUND_COLOR
                     )
                 }
             }
@@ -142,14 +141,15 @@ fun ShowSettingDropDownMenu(
                 expanded.value = false
             },
             modifier = Modifier
-                .width(120.dp)
-                .background(MaterialTheme.colorScheme.onBackground)
+                .width(120.dp),
+            containerColor = BACKGROUND_COLOR,
+            border = BorderStroke(0.1.dp, ON_BACKGROUND_COLOR),
         ) {
             items.forEach { element ->
                 DropdownMenuItem(text = {
                     Text(
                         text = element,
-                        color = MaterialTheme.colorScheme.background
+                        color = ON_BACKGROUND_COLOR
                     )
                 },
                     onClick = {
@@ -157,20 +157,20 @@ fun ShowSettingDropDownMenu(
                         showDialog.value = false
                         navController.navigate(
                             route = when (element) {
-                                "About" -> InstaReelScreens.AboutScreen.name
-                                "Save" -> InstaReelScreens.SaveScreen.name
-                                else -> InstaReelScreens.SettingScreen.name
+                                "About" -> AboutScreen.name
+                                "Save" -> SaveScreen.name
+                                else -> SettingScreen.name
                             }
                         )
                     },
                     leadingIcon = {
                         Icon(
                             imageVector = when (element) {
-                                stringResource(R.string.lbl_about) -> Icons.Default.Info
-                                stringResource(R.string.lbl_save) -> Icons.Default.Favorite
-                                else -> Icons.Default.Settings
+                                stringResource(R.string.lbl_about) -> Default.Info
+                                stringResource(R.string.lbl_save) -> Default.Favorite
+                                else -> Default.Settings
                             }, contentDescription = "Leading Icon",
-                            tint = MaterialTheme.colorScheme.background
+                            tint = ON_BACKGROUND_COLOR
                         )
                     }
                 )
@@ -183,7 +183,7 @@ fun ShowSettingDropDownMenu(
 fun ScreenDefault(
     title: String = stringResource(R.string.app_name),
     isMainScreen: Boolean = true,
-    icon: ImageVector = Icons.Default.Favorite,
+    icon: ImageVector = Default.Favorite,
     navController: NavController,
     onBackPressed: () -> Unit = {},
     screenContent: @Composable () -> Unit = {},
@@ -200,8 +200,8 @@ fun ScreenDefault(
         Column(Modifier.padding(paddingValues)) {
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.onBackground
+                thickness = 0.8.dp,
+                color = ON_BACKGROUND_COLOR
             )
             screenContent()
         }
