@@ -1,11 +1,30 @@
 package com.merp.jet.ig.downloader.model
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
+
+@Serializable
+@Entity(tableName = "reel_tbl")
 data class ReelResponse(
-    val duration: String,
-    val medias: List<Media>,
-    val sid: Any,
-    val source: String,
+
+    @PrimaryKey
+    @ColumnInfo("url")
+    val url: String,
+
+    @ColumnInfo("thumbnail")
     val thumbnail: String,
-    val title: String,
-    val url: String
+
+    @ColumnInfo("duration")
+    val duration: String,
+
+    @ColumnInfo("source")
+    val source: String,
+
+    @ColumnInfo("medias")
+    val medias: List<Media>,
+
+    val title: String? = null,
+    val sid: String? = null
 )
