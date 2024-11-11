@@ -1,5 +1,8 @@
 package com.merp.jet.ig.downloader.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Media(
     val audioAvailable: Boolean,
     val cached: Boolean,
