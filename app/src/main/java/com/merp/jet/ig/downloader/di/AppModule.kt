@@ -1,10 +1,15 @@
 package com.merp.jet.ig.downloader.di
 
+import android.content.Context
+import androidx.room.Room
+import com.merp.jet.ig.downloader.data.InstaReelDao
+import com.merp.jet.ig.downloader.data.InstaReelDatabase
 import com.merp.jet.ig.downloader.network.ReelApi
 import com.merp.jet.ig.downloader.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -32,5 +37,19 @@ class AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ReelApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideInstaReelDao(instaReelDatabase: InstaReelDatabase): InstaReelDao {
+        return instaReelDatabase.getInstaReelDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideInstaReelDatabase(@ApplicationContext context: Context): InstaReelDatabase {
+        return Room.databaseBuilder(context, InstaReelDatabase::class.java, "insta_database")
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }
