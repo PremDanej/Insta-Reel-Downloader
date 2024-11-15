@@ -69,6 +69,23 @@ fun LoadingButton(text: String, enabled: Boolean, isLoading: Boolean, onclick: (
     }
 }
 
+@Composable
+fun LoadingIconButton(
+    icon: ImageVector,
+    enabled: Boolean,
+    isLoading: Boolean,
+    onclick: () -> Unit
+) {
+    IconButton(onClick = onclick, enabled = enabled)
+    {
+        if (isLoading) {
+            CircularProgressBar()
+        } else {
+            Icon(icon, null)
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopActionBar(
@@ -85,7 +102,11 @@ fun TopActionBar(
 
     TopAppBar(
         title = {
-            Text(text = title, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.SemiBold
+            )
         },
         navigationIcon = {
             IconButton(
