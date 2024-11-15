@@ -53,7 +53,8 @@ val ON_BACKGROUND_COLOR: Color @Composable get() = MaterialTheme.colorScheme.onB
 fun CircularProgressBar(modifier: Modifier = Modifier) {
     CircularProgressIndicator(
         modifier = modifier.size(24.dp),
-        color = ON_BACKGROUND_COLOR
+        color = ON_BACKGROUND_COLOR,
+        strokeWidth = 3.dp
     )
 }
 
