@@ -222,8 +222,8 @@ fun ScreenDefault(
         Column(Modifier.padding(paddingValues)) {
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
-                thickness = 0.8.dp,
-                color = ON_BACKGROUND_COLOR
+                thickness = 1.dp,
+                color = Color.DarkGray
             )
             screenContent()
         }
