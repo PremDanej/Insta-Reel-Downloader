@@ -10,7 +10,7 @@
 - Paste into this app.
 - Click on **Get** button.
 - Wait few seconds.
-- Click on **Download Now** button.
+- Click on **Download** icon.
 
 ### Software Requirement
 
