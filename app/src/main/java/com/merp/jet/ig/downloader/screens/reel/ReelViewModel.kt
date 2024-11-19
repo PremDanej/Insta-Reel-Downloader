@@ -22,6 +22,7 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
     val reelResponse: MutableLiveData<ReelResponse> by lazy {
         MutableLiveData<ReelResponse>()
     }
+    var saveReelResponse = mutableListOf<ReelResponse>()
 
     fun getReelData(url: String) {
 
@@ -44,5 +45,42 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
                 else -> isLoading = false
             }
         }
+    }
+
+
+    fun saveReel(reelResponse: ReelResponse) {
+        viewModelScope.launch {
+            try {
+                repository.saveReel(reelResponse)
+            } catch (e: Exception) {
+                Log.e("REEL", "VIEWMODEL ERR | saveReel(): ${e.message}")
+            }
+        }
+    }
+
+
+    fun getSaveReelByUrl(url: String) {
+        viewModelScope.launch {
+            try {
+                val saveElement = repository.getSaveReelByUrl(url)
+                saveReelResponse.add(saveElement)
+            } catch (e: Exception) {
+                Log.e("REEL", "VIEWMODEL ERR | getSaveReelByUrl(): ${e.message}")
+            }
+        }
+    }
+
+    fun deleteSaveReel(reelResponse: ReelResponse) {
+        viewModelScope.launch {
+            try {
+                repository.deleteSaveReel(reelResponse)
+            } catch (e: Exception) {
+                Log.e("REEL", "VIEWMODEL ERR | deleteSaveReel(): ${e.message}")
+            }
+        }
+    }
+
+    fun isDataEmpty(): Boolean{
+        return saveReelResponse.isNotEmpty()
     }
 }
