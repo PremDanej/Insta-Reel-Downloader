@@ -2,8 +2,10 @@ package com.merp.jet.ig.downloader.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -56,6 +58,11 @@ fun CircularProgressBar(modifier: Modifier = Modifier) {
         color = ON_BACKGROUND_COLOR,
         strokeWidth = 3.dp
     )
+}
+
+@Composable
+fun HorizontalSpace(modifier: Modifier = Modifier) {
+    Spacer(modifier.height(16.dp))
 }
 
 @Composable
