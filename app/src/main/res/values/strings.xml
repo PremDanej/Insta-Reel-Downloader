@@ -7,4 +7,6 @@
     <string name="lbl_setting">Setting</string>
     <string name="lbl_light_mode">Light</string>
     <string name="lbl_dark_mode">Dark</string>
+    <string name="lbl_version">version: v1.0.0</string>
+    <string name="lbl_made_with">" IG Downloader made with"</string>
 </resources>
