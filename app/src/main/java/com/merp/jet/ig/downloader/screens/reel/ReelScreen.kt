@@ -1,28 +1,19 @@
 package com.merp.jet.ig.downloader.screens.reel
 
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.net.Uri
-import android.provider.MediaStore
-import android.util.Base64
-import android.util.Log
 import android.webkit.URLUtil
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.filled.BookmarkAdded
+import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -34,32 +25,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.merp.jet.ig.downloader.R
+import com.merp.jet.ig.downloader.components.HorizontalSpace
 import com.merp.jet.ig.downloader.components.LoadingButton
+import com.merp.jet.ig.downloader.components.LoadingIconButton
 import com.merp.jet.ig.downloader.components.ScreenDefault
+import com.merp.jet.ig.downloader.components.VideoCard
 import com.merp.jet.ig.downloader.model.ReelResponse
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
-import java.net.URL
+import com.merp.jet.ig.downloader.utils.Utils.downloadReel
+import com.merp.jet.ig.downloader.utils.Utils.showToast
 
 @Composable
 fun ReelScreen(navController: NavController, viewModel: ReelViewModel = hiltViewModel()) {
@@ -80,6 +62,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
     var videoLink by remember { mutableStateOf("") }
     var isDownloadable by remember { mutableStateOf(false) }
     val reelResponse = remember { mutableStateOf<ReelResponse?>(null) }
+    var isSaved by remember { mutableStateOf(viewModel.isDataEmpty()) }
 
     Column(
         Modifier
@@ -91,7 +74,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
 
         OutlinedTextField(
             value = videoLink,
-            onValueChange = { videoLink = it },
+            onValueChange = { videoLink = it.trim() },
             label = { Text(text = "Reel Link") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,7 +85,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        HorizontalSpace()
 
         LoadingButton(
             text = stringResource(R.string.lbl_get),
@@ -112,6 +95,8 @@ fun ScreenContent(viewModel: ReelViewModel) {
             if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
                 showToast(context, message = "Please enter a valid link")
             } else if (videoLink.contains("https://www.instagram.com/reel/")) {
+                viewModel.saveReelResponse.clear()
+                viewModel.getSaveReelByUrl(videoLink)
                 viewModel.isLoading = true
                 viewModel.getReelData(videoLink)
                 viewModel.reelResponse.observe(owner) {
@@ -121,11 +106,24 @@ fun ScreenContent(viewModel: ReelViewModel) {
             } else showToast(context, "Enter valid reel link")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        HorizontalSpace()
 
         if (isDownloadable && !viewModel.isLoading) {
             if (!viewModel.isError) {
-                reelResponse.value?.let { ReelDownloading(reelResponse = it) }
+                reelResponse.value?.let { reelResponse ->
+                    ReelDownloaderCard(reelResponse, isSaved) {
+                        if (isSaved) {
+                            viewModel.deleteSaveReel(reelResponse)
+                            isSaved = false
+                            showToast(context, "Remove Successfully")
+                        } else {
+                            viewModel.saveReel(reelResponse)
+                            isSaved = true
+                            showToast(context, "Save Successfully")
+                        }
+                        viewModel.saveReelResponse.clear()
+                    }
+                }
             } else {
                 showToast(context, message = "Invalid link! Please try again")
                 isDownloadable = false
@@ -135,120 +133,31 @@ fun ScreenContent(viewModel: ReelViewModel) {
 }
 
 @Composable
-fun ReelDownloading(reelResponse: ReelResponse) {
+fun ReelDownloaderCard(
+    reelResponse: ReelResponse,
+    isSaved: Boolean,
+    onSaveAction: () -> Unit
+) {
 
-    var isDownloading by rememberSaveable { mutableStateOf(false) }
     val context: Context = LocalContext.current
-    val imageUrl = reelResponse.thumbnail.split(',')[1]
-    val media = reelResponse.medias[0]
+    var isDownloading by rememberSaveable { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .padding(horizontal = 10.dp)
-    ) {
-        Image(
-            bitmap = convertBase64ToBitmap(imageUrl),
-            contentDescription = "Image",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.height(120.dp).width(90.dp)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 10.dp, vertical = 2.dp)
+    VideoCard(reelResponse = reelResponse) {
+        LoadingIconButton(
+            icon = Filled.Download,
+            enabled = !isDownloading,
+            isLoading = isDownloading
         ) {
-            Text(
-                text = reelResponse.title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp
-            )
-            Text(
-                text = "Quality: ${media.quality}",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-            )
-            Text(
-                text = "Size: ${media.formattedSize}",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-            )
-            LoadingButton(
-                text = stringResource(R.string.lbl_download_now),
-                enabled = !isDownloading,
-                isLoading = isDownloading
-            ) {
-                isDownloading = true
-                downloadReel(media.url, context) { isDownloading = false }
-            }
+            isDownloading = true
+            downloadReel(reelResponse.medias[0].url, context) { isDownloading = false }
+        }
+
+        LoadingIconButton(
+            icon = if (isSaved) Filled.BookmarkAdded else Filled.BookmarkBorder,
+            enabled = true,
+            isLoading = false
+        ) {
+            onSaveAction()
         }
     }
-}
-
-fun downloadReel(videoLink: String, context: Context, onComplete: () -> Unit) {
-    CoroutineScope(Dispatchers.IO).launch {
-        try {
-            val url = URL(videoLink)
-            val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
-            connection.connectTimeout = 5000
-
-            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                val contentValue = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME,"InstaReel_${System.currentTimeMillis()}.mp4")
-                    put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, "Movies/InstaReels")
-                }
-
-                val resolver: ContentResolver = context.contentResolver
-                val uri: Uri? =
-                    resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValue)
-
-                uri?.let { validUri ->
-                    resolver.openOutputStream(validUri)?.use { outputStream ->
-                        connection.inputStream.use { input ->
-                            input.copyTo(outputStream)
-                        }
-                    }
-                    withContext(Dispatchers.Main) {
-                        showToast(context, message = "Reel Downloaded")
-                    }
-                } ?: run {
-                    withContext(Dispatchers.Main) {
-                        showToast(context, message = "Failed to download reel")
-                    }
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    showToast(context, message = "Failed to download reel")
-                }
-            }
-        } catch (e: MalformedURLException) {
-            Log.e("REEL", "Malformed URL: ${e.message}")
-            withContext(Dispatchers.Main) {
-                showToast(context, message = "Invalid URL")
-            }
-        } catch (e: IOException) {
-            Log.e("REEL", "IO Exception: ${e.message}")
-            withContext(Dispatchers.Main) {
-                showToast(context, message = "Something went wrong")
-            }
-        } finally {
-            onComplete()
-        }
-    }
-}
-
-fun showToast(context: Context, message: String) {
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-}
-
-fun convertBase64ToBitmap(base65String: String): ImageBitmap {
-    val byteArray = Base64.decode(base65String, Base64.DEFAULT)
-    return BitmapFactory.decodeStream(ByteArrayInputStream(byteArray)).asImageBitmap()
 }
