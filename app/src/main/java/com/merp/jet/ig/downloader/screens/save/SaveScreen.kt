@@ -80,14 +80,7 @@ fun ScreenContent(viewModel: SaveViewModel) {
                 SaveDataRow(
                     reelResponse = element,
                     onCopyAction = {
-                        clipboardManager.setClip(
-                            ClipEntry(
-                                ClipData.newPlainText(
-                                    "text",
-                                    element.url
-                                )
-                            )
-                        )
+                        clipboardManager.setClip(ClipEntry(ClipData.newPlainText("text",element.url)))
                         showToast(context, "Link Copied")
                     },
                     onDeleteAction = {
@@ -117,7 +110,7 @@ fun EmptyDataSet() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "Data not found",
+            text = "Data is Empty",
             fontWeight = FontWeight.SemiBold,
             style = MaterialTheme.typography.bodyLarge,
             color = ON_BACKGROUND_COLOR
