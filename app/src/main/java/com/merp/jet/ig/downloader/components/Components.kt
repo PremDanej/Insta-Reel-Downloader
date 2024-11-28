@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -24,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -66,13 +66,19 @@ fun HorizontalSpace(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LoadingButton(text: String, enabled: Boolean, isLoading: Boolean, onclick: () -> Unit) {
-    Button(onClick = onclick, enabled = enabled)
+fun LoadingButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    enabled: Boolean,
+    isLoading: Boolean,
+    onclick: () -> Unit
+) {
+    OutlinedButton(modifier = modifier, onClick = onclick, enabled = enabled)
     {
         if (isLoading) {
             CircularProgressBar()
         } else {
-            Text(text = text, color = BACKGROUND_COLOR)
+            Text(text = text)
         }
     }
 }
