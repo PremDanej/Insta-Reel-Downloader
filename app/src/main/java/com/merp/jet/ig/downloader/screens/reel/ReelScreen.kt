@@ -5,15 +5,21 @@ import android.webkit.URLUtil
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,15 +31,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.merp.jet.ig.downloader.R
+import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.HorizontalSpace
 import com.merp.jet.ig.downloader.components.LoadingButton
 import com.merp.jet.ig.downloader.components.LoadingIconButton
@@ -63,6 +73,9 @@ fun ScreenContent(viewModel: ReelViewModel) {
     var isDownloadable by remember { mutableStateOf(false) }
     val reelResponse = remember { mutableStateOf<ReelResponse?>(null) }
     var isSaved by remember { mutableStateOf(viewModel.isDataEmpty()) }
+    val focusManager = LocalFocusManager.current
+    val clipboardManager = LocalClipboardManager.current
+    val annotatedString = clipboardManager.getText()
 
     Column(
         Modifier
@@ -72,38 +85,70 @@ fun ScreenContent(viewModel: ReelViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
 
-        OutlinedTextField(
-            value = videoLink,
-            onValueChange = { videoLink = it.trim() },
-            label = { Text(text = "Reel Link") },
-            modifier = Modifier
+        Row(
+            Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp),
-            keyboardActions = KeyboardActions {
-                keyboard?.hide()
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        )
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(50.dp)
+                    .padding(end = 5.dp),
+                value = videoLink,
+                onValueChange = { videoLink = it.trim() },
+                placeholder = { Text(text = "Reel Link") },
+                keyboardActions = KeyboardActions(onDone = {
+                    keyboard?.hide()
+                    focusManager.clearFocus()
+                }),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Uri,
+                    imeAction = ImeAction.Done
+                ),
+                shape = RoundedCornerShape(50),
+                maxLines = 1,
+            )
+
+            LoadingIconButton(
+                icon = Icons.AutoMirrored.Filled.ArrowForward,
+                enabled = !viewModel.isLoading,
+                isLoading = viewModel.isLoading
+            ) {
+                if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
+                    showToast(context, message = "Please enter a valid link")
+                } else if (videoLink.contains("https://www.instagram.com/reel/")) {
+                    viewModel.saveReelResponse.clear()
+                    viewModel.getSaveReelByUrl(videoLink)
+                    viewModel.isLoading = true
+                    viewModel.getReelData(videoLink)
+                    viewModel.reelResponse.observe(owner) {
+                        reelResponse.value = it
+                        isDownloadable = true
+                    }
+                } else showToast(context, "Enter valid reel link")
+            }
+        }
 
         HorizontalSpace()
 
-        LoadingButton(
-            text = stringResource(R.string.lbl_get),
-            enabled = !viewModel.isLoading,
-            isLoading = viewModel.isLoading
+        Row(
+            Modifier
+                .fillMaxWidth(1f)
+                .padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
-                showToast(context, message = "Please enter a valid link")
-            } else if (videoLink.contains("https://www.instagram.com/reel/")) {
-                viewModel.saveReelResponse.clear()
-                viewModel.getSaveReelByUrl(videoLink)
-                viewModel.isLoading = true
-                viewModel.getReelData(videoLink)
-                viewModel.reelResponse.observe(owner) {
-                    reelResponse.value = it
-                    isDownloadable = true
+            Button(onClick = {
+                if(annotatedString != null) {
+                    // The pasted text is placed on the tail of the TextField
+                    videoLink += annotatedString
                 }
-            } else showToast(context, "Enter valid reel link")
+            },
+                modifier = Modifier.fillMaxWidth(0.5f).padding(end = 5.dp)
+                ) {
+                Text(text = "Paste", color = BACKGROUND_COLOR)
+            }
         }
 
         HorizontalSpace()
