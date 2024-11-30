@@ -149,6 +149,31 @@ fun ScreenContent(viewModel: ReelViewModel) {
                 ) {
                 Text(text = "Paste", color = BACKGROUND_COLOR)
             }
+
+            LoadingButton(
+                modifier = Modifier.fillMaxWidth(1f).padding(5.dp),
+                text = "Paste & Go",
+                enabled = !viewModel.isLoading,
+                isLoading = viewModel.isLoading
+            ) {
+                if(annotatedString != null) {
+                    // The pasted text is placed on the tail of the TextField
+                    videoLink += annotatedString
+
+                    if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
+                        showToast(context, message = "Please enter a valid link")
+                    } else if (videoLink.contains("https://www.instagram.com/reel/")) {
+                        viewModel.saveReelResponse.clear()
+                        viewModel.getSaveReelByUrl(videoLink)
+                        viewModel.isLoading = true
+                        viewModel.getReelData(videoLink)
+                        viewModel.reelResponse.observe(owner) {
+                            reelResponse.value = it
+                            isDownloadable = true
+                        }
+                    } else showToast(context, "Enter valid reel link")
+                }
+            }
         }
 
         HorizontalSpace()
