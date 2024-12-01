@@ -1,6 +1,6 @@
 package com.merp.jet.ig.downloader.screens.reel
 
-import android.util.Log
+import android.util.Log.e
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,7 +39,7 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
                 is Resource.Error -> {
                     isLoading = false
                     isError = true
-                    Log.e("REEL", "VIEWMODEL ERR | getReelNewData(): ${response.message}")
+                    e("REEL", "REEL_VIEWMODEL ERR | getReelData(): ${response.message}")
                 }
 
                 else -> isLoading = false
@@ -47,13 +47,12 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
         }
     }
 
-
     fun saveReel(reelResponse: ReelResponse) {
         viewModelScope.launch {
             try {
                 repository.saveReel(reelResponse)
             } catch (e: Exception) {
-                Log.e("REEL", "VIEWMODEL ERR | saveReel(): ${e.message}")
+                e("REEL", "REEL_VIEWMODEL ERR | saveReel(): ${e.message}")
             }
         }
     }
@@ -65,7 +64,7 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
                 val saveElement = repository.getSaveReelByUrl(url)
                 saveReelResponse.add(saveElement)
             } catch (e: Exception) {
-                Log.e("REEL", "VIEWMODEL ERR | getSaveReelByUrl(): ${e.message}")
+                e("REEL", "REEL_VIEWMODEL ERR | getSaveReelByUrl(): ${e.message}")
             }
         }
     }
@@ -75,12 +74,12 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
             try {
                 repository.deleteSaveReel(reelResponse)
             } catch (e: Exception) {
-                Log.e("REEL", "VIEWMODEL ERR | deleteSaveReel(): ${e.message}")
+                e("REEL", "REEL_VIEWMODEL ERR | deleteSaveReel(): ${e.message}")
             }
         }
     }
 
-    fun isDataEmpty(): Boolean{
+    fun isDataEmpty(): Boolean {
         return saveReelResponse.isNotEmpty()
     }
 }
