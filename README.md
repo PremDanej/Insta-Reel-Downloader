@@ -8,7 +8,7 @@
 
 - Copy Instagram reel link.
 - Paste into this app.
-- Click on **Paste & Get** button.
+- Click on **Gets** button.
 - Wait few seconds.
 - Click on **Download** icon.
 
