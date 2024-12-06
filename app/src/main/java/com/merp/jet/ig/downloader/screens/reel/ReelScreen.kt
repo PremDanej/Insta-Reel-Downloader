@@ -10,16 +10,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -85,37 +87,70 @@ fun ScreenContent(viewModel: ReelViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
 
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 10.dp),
+            value = videoLink,
+            onValueChange = { videoLink = it.trim() },
+            placeholder = { Text(text = "Reel Link") },
+            keyboardActions = KeyboardActions(onDone = {
+                keyboard?.hide()
+                focusManager.clearFocus()
+            }),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Uri,
+                imeAction = ImeAction.Done
+            ),
+            shape = RoundedCornerShape(50),
+            maxLines = 1,
+            singleLine = true,
+            trailingIcon = {
+                if (videoLink.isNotEmpty()) {
+                    IconButton(
+                        modifier = Modifier.size(26.dp),
+                        onClick = { videoLink = "" }) {
+                        Icon(
+                            imageVector = Filled.Clear,
+                            contentDescription = "Clear"
+                        )
+                    }
+                }
+            }
+        )
+
+        HorizontalSpace()
+
         Row(
             Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(1f)
                 .padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
+            Button(
+                onClick = {
+                    if (annotatedString != null) {
+                        // The pasted text is placed on the tail of the TextField
+                        videoLink += annotatedString
+                    }
+                },
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(50.dp)
-                    .padding(end = 5.dp),
-                value = videoLink,
-                onValueChange = { videoLink = it.trim() },
-                placeholder = { Text(text = "Reel Link") },
-                keyboardActions = KeyboardActions(onDone = {
-                    keyboard?.hide()
-                    focusManager.clearFocus()
-                }),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Uri,
-                    imeAction = ImeAction.Done
-                ),
-                shape = RoundedCornerShape(50),
-                maxLines = 1,
-            )
+                    .fillMaxWidth(0.5f)
+                    .padding(end = 5.dp)
+            ) {
+                Text(text = "Paste", color = BACKGROUND_COLOR)
+            }
 
-            LoadingIconButton(
-                icon = Icons.AutoMirrored.Filled.ArrowForward,
+            LoadingButton(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(5.dp),
+                text = "Go",
                 enabled = !viewModel.isLoading,
                 isLoading = viewModel.isLoading
             ) {
+
                 if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
                     showToast(context, message = "Please enter a valid link")
                 } else if (videoLink.contains("https://www.instagram.com/reel/")) {
@@ -128,51 +163,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
                         isDownloadable = true
                     }
                 } else showToast(context, "Enter valid reel link")
-            }
-        }
 
-        HorizontalSpace()
-
-        Row(
-            Modifier
-                .fillMaxWidth(1f)
-                .padding(horizontal = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = {
-                if(annotatedString != null) {
-                    // The pasted text is placed on the tail of the TextField
-                    videoLink += annotatedString
-                }
-            },
-                modifier = Modifier.fillMaxWidth(0.5f).padding(end = 5.dp)
-                ) {
-                Text(text = "Paste", color = BACKGROUND_COLOR)
-            }
-
-            LoadingButton(
-                modifier = Modifier.fillMaxWidth(1f).padding(5.dp),
-                text = "Paste & Go",
-                enabled = !viewModel.isLoading,
-                isLoading = viewModel.isLoading
-            ) {
-                if(annotatedString != null) {
-                    // The pasted text is placed on the tail of the TextField
-                    videoLink += annotatedString
-
-                    if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
-                        showToast(context, message = "Please enter a valid link")
-                    } else if (videoLink.contains("https://www.instagram.com/reel/")) {
-                        viewModel.saveReelResponse.clear()
-                        viewModel.getSaveReelByUrl(videoLink)
-                        viewModel.isLoading = true
-                        viewModel.getReelData(videoLink)
-                        viewModel.reelResponse.observe(owner) {
-                            reelResponse.value = it
-                            isDownloadable = true
-                        }
-                    } else showToast(context, "Enter valid reel link")
-                }
             }
         }
 
