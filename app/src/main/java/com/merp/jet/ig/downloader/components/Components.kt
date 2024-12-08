@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -26,11 +27,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -39,11 +38,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.merp.jet.ig.downloader.R
+import com.merp.jet.ig.downloader.R.string.app_name
+import com.merp.jet.ig.downloader.R.string.lbl_about
+import com.merp.jet.ig.downloader.R.string.lbl_save
+import com.merp.jet.ig.downloader.R.string.lbl_setting
 import com.merp.jet.ig.downloader.navigation.InstaReelScreens.AboutScreen
 import com.merp.jet.ig.downloader.navigation.InstaReelScreens.SaveScreen
 import com.merp.jet.ig.downloader.navigation.InstaReelScreens.SettingScreen
@@ -103,7 +104,7 @@ fun LoadingIconButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopActionBar(
-    title: String = stringResource(R.string.app_name),
+    title: String = stringResource(app_name),
     isMainScreen: Boolean = true,
     icon: ImageVector = Default.Favorite,
     navController: NavController,
@@ -114,12 +115,12 @@ fun TopActionBar(
         ShowSettingDropDownMenu(showDialog, navController)
     }
 
-    TopAppBar(
+    CenterAlignedTopAppBar(
         title = {
             Text(
                 text = title,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.SemiBold
+                color = ON_BACKGROUND_COLOR,
+                style = MaterialTheme.typography.titleMedium
             )
         },
         navigationIcon = {
@@ -137,9 +138,10 @@ fun TopActionBar(
         colors = TopAppBarDefaults.topAppBarColors(BACKGROUND_COLOR),
         actions = {
             if (isMainScreen) {
-                IconButton(onClick = {
-                    showDialog.value = true
-                }) {
+                IconButton(
+                    onClick = {
+                        showDialog.value = true
+                    }) {
                     Icon(
                         imageVector = Default.MoreVert,
                         contentDescription = "Icon",
@@ -156,13 +158,10 @@ fun ShowSettingDropDownMenu(
     showDialog: MutableState<Boolean>,
     navController: NavController = NavHostController(LocalContext.current)
 ) {
-    val expanded by remember {
-        mutableStateOf(showDialog)
-    }
     val items = listOf(
-        stringResource(R.string.lbl_about),
-        stringResource(R.string.lbl_save),
-        stringResource(R.string.lbl_setting)
+        stringResource(lbl_about),
+        stringResource(lbl_save),
+        stringResource(lbl_setting)
     )
     Column(
         modifier = Modifier
@@ -171,24 +170,22 @@ fun ShowSettingDropDownMenu(
             .absolutePadding(top = 80.dp, right = 20.dp)
     ) {
         DropdownMenu(
-            expanded = expanded.value,
-            onDismissRequest = {
-                expanded.value = false
-            },
-            modifier = Modifier
-                .width(120.dp),
+            expanded = showDialog.value,
+            onDismissRequest = { showDialog.value = false },
+            modifier = Modifier.width(120.dp),
             containerColor = BACKGROUND_COLOR,
             border = BorderStroke(0.1.dp, ON_BACKGROUND_COLOR),
         ) {
             items.forEach { element ->
-                DropdownMenuItem(text = {
-                    Text(
-                        text = element,
-                        color = ON_BACKGROUND_COLOR
-                    )
-                },
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = element,
+                            color = ON_BACKGROUND_COLOR,
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    },
                     onClick = {
-                        expanded.value = false
                         showDialog.value = false
                         navController.navigate(
                             route = when (element) {
@@ -201,8 +198,8 @@ fun ShowSettingDropDownMenu(
                     leadingIcon = {
                         Icon(
                             imageVector = when (element) {
-                                stringResource(R.string.lbl_about) -> Default.Info
-                                stringResource(R.string.lbl_save) -> Default.Favorite
+                                stringResource(lbl_about) -> Default.Info
+                                stringResource(lbl_save) -> Default.Favorite
                                 else -> Default.Settings
                             }, contentDescription = "Leading Icon",
                             tint = ON_BACKGROUND_COLOR
@@ -216,7 +213,7 @@ fun ShowSettingDropDownMenu(
 
 @Composable
 fun ScreenDefault(
-    title: String = stringResource(R.string.app_name),
+    title: String = stringResource(app_name),
     isMainScreen: Boolean = true,
     icon: ImageVector = Default.Favorite,
     navController: NavController,
@@ -233,11 +230,13 @@ fun ScreenDefault(
         )
     }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = 1.dp,
-                color = Color.DarkGray
-            )
+            if(!isMainScreen){
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Color.DarkGray
+                )
+            }
             screenContent()
         }
     }
