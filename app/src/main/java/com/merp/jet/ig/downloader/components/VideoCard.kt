@@ -1,6 +1,8 @@
 package com.merp.jet.ig.downloader.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -12,17 +14,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.merp.jet.ig.downloader.model.ReelResponse
 import com.merp.jet.ig.downloader.utils.Utils.convertBase64ToBitmap
-
 
 @Composable
 fun VideoCard(
@@ -35,48 +35,34 @@ fun VideoCard(
 
     Card(
         shape = RoundedCornerShape(10),
-        modifier = Modifier.padding(10.dp, 8.dp),
+        modifier = modifier.padding(10.dp, 8.dp),
         colors = CardDefaults.cardColors(BACKGROUND_COLOR),
-        border = CardDefaults.outlinedCardBorder(),
+        border = BorderStroke(0.2.dp, ON_BACKGROUND_COLOR),
     ) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(140.dp)
-        ) {
+        Row(modifier.fillMaxWidth().height(140.dp)) {
             Image(
                 bitmap = convertBase64ToBitmap(imageUrl),
                 contentDescription = "Image",
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .height(140.dp)
-                    .width(90.dp)
+                modifier = modifier.height(140.dp).width(90.dp)
             )
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(10.dp)
-            ) {
+            Column(modifier = modifier.fillMaxSize().padding(horizontal = 10.dp),
+                verticalArrangement = Arrangement.SpaceEvenly) {
                 Text(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
+                    modifier = modifier.fillMaxWidth(),
                     text = reelResponse.title.toString(),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
+                    modifier = modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.labelLarge,
                     text = "Quality: ${media.quality}",
                 )
                 Text(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
+                    modifier = modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.labelLarge,
                     text = "Size: ${media.formattedSize}",
                 )
                 Row(content = content)
