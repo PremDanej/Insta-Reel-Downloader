@@ -233,8 +233,8 @@ fun ScreenDefault(
             if(!isMainScreen){
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = Color.DarkGray
+                    thickness = 0.4.dp,
+                    color = ON_BACKGROUND_COLOR
                 )
             }
             screenContent()
