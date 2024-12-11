@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -67,7 +66,6 @@ fun ScreenContent(viewModel: SaveViewModel) {
     val list = viewModel.savedList.collectAsState().value
     val clipboardManager = LocalClipboardManager.current
     val context: Context = LocalContext.current
-
     if (list.isEmpty()) {
         EmptyDataSet()
     } else {
@@ -75,6 +73,7 @@ fun ScreenContent(viewModel: SaveViewModel) {
             Modifier
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState())
+                .padding(5.dp),
         ) {
             list.forEach { element ->
                 SaveDataRow(
@@ -110,8 +109,7 @@ fun EmptyDataSet() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "Data is Empty",
-            fontWeight = FontWeight.SemiBold,
+            text = "Not a single video saved yet \uD83D\uDE12",
             style = MaterialTheme.typography.bodyLarge,
             color = ON_BACKGROUND_COLOR
         )
