@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
@@ -20,11 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.merp.jet.ig.downloader.R
+import com.merp.jet.ig.downloader.R.drawable.launcher
+import com.merp.jet.ig.downloader.R.string.app_name
+import com.merp.jet.ig.downloader.R.string.lbl_made_with
+import com.merp.jet.ig.downloader.R.string.lbl_version
 import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ScreenDefault
@@ -53,30 +57,29 @@ fun ScreenContent() {
         Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(id = R.string.app_name),
-            fontWeight = FontWeight.SemiBold,
-            style = MaterialTheme.typography.titleLarge,
+            text = stringResource(app_name),
+            style = MaterialTheme.typography.titleMedium,
             color = ON_BACKGROUND_COLOR
         )
         Text(
-            text = stringResource(R.string.lbl_version),
+            text = stringResource(lbl_version),
             style = MaterialTheme.typography.bodyMedium
         )
         Image(
-            painter = painterResource(id = R.drawable.launcher),
+            painter = painterResource(launcher),
             contentDescription = "",
             modifier = Modifier.size(130.dp)
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = stringResource(R.string.lbl_made_with),
-                style = MaterialTheme.typography.bodyLarge,
+                text = stringResource(lbl_made_with),
+                style = MaterialTheme.typography.labelLarge,
                 color = ON_BACKGROUND_COLOR,
                 textAlign = TextAlign.Center
             )
             Icon(
                 modifier = Modifier.padding(5.dp),
-                imageVector = Icons.Filled.Favorite,
+                imageVector = Filled.Favorite,
                 contentDescription = "Heart",
                 tint = Color.Red.copy(700f)
             )
