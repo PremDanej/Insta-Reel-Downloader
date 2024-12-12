@@ -1,30 +1,26 @@
 package com.merp.jet.ig.downloader
 
-import android.Manifest
-import android.content.Context
+import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+import androidx.navigation.compose.rememberNavController
+import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.navigation.InstaReelNavigation
 import com.merp.jet.ig.downloader.ui.theme.IGDownloaderTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,39 +34,21 @@ class MainActivity : ComponentActivity() {
         setContent {
             val isSystemIsDark = isSystemInDarkTheme()
             val isDark = remember { mutableStateOf(isSystemIsDark) }
+            val isDynamicColor = remember { mutableStateOf(false) }
+            val navController = rememberNavController()
             SystemBarIconColorTheme(!isDark.value)
-            IGDownloaderTheme(darkTheme = isDark.value) {
+            IGDownloaderTheme(darkTheme = isDark.value, dynamicColor = isDynamicColor.value) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
+                        .background(BACKGROUND_COLOR)
                 ) {
-                    InstaReelDownloaderApp(isDark)
+                    InstaReelNavigation(isDark, isDynamicColor, navController)
                 }
             }
         }
     }
 }
-
-@Composable
-fun InstaReelDownloaderApp(isDark: MutableState<Boolean>) {
-
-    val context: Context = LocalContext.current
-
-    // Permission
-    val storagePermissionLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (!isGranted) {
-                Toast.makeText(context, "Access Denied", Toast.LENGTH_LONG).show()
-            }
-        }
-
-    LaunchedEffect(Unit) {
-        storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    }
-    InstaReelNavigation(isDark)
-}
-
 
 @Composable
 fun SystemBarIconColorTheme(darkTheme: Boolean) {
@@ -80,6 +58,10 @@ fun SystemBarIconColorTheme(darkTheme: Boolean) {
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as ComponentActivity).window
+            window.navigationBarColor = Color.Transparent.toArgb()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+            }
             val windowInsetsController = WindowInsetsControllerCompat(window, view)
             // Set light or dark icons based on theme
             windowInsetsController.isAppearanceLightStatusBars = darkTheme
