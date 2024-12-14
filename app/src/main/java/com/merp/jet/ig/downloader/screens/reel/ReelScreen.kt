@@ -20,10 +20,11 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,6 +50,7 @@ import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.HorizontalSpace
 import com.merp.jet.ig.downloader.components.LoadingButton
 import com.merp.jet.ig.downloader.components.LoadingIconButton
+import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ScreenDefault
 import com.merp.jet.ig.downloader.components.VideoCard
 import com.merp.jet.ig.downloader.model.ReelResponse
@@ -82,7 +84,8 @@ fun ScreenContent(viewModel: ReelViewModel) {
     Column(
         Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background),
+            .background(BACKGROUND_COLOR)
+            .padding(bottom = 100.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -106,6 +109,16 @@ fun ScreenContent(viewModel: ReelViewModel) {
             shape = RoundedCornerShape(50),
             maxLines = 1,
             singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = ON_BACKGROUND_COLOR,
+                unfocusedBorderColor = ON_BACKGROUND_COLOR,
+                focusedTextColor = ON_BACKGROUND_COLOR,
+                unfocusedTextColor = ON_BACKGROUND_COLOR,
+                focusedPlaceholderColor = ON_BACKGROUND_COLOR,
+                unfocusedPlaceholderColor = ON_BACKGROUND_COLOR,
+                focusedTrailingIconColor = ON_BACKGROUND_COLOR,
+                unfocusedTrailingIconColor = ON_BACKGROUND_COLOR,
+            ),
             trailingIcon = {
                 if (videoLink.isNotEmpty()) {
                     IconButton(
@@ -124,7 +137,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
 
         Row(
             Modifier
-                .fillMaxWidth(1f)
+                .fillMaxWidth()
                 .padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -132,19 +145,20 @@ fun ScreenContent(viewModel: ReelViewModel) {
                 onClick = {
                     if (annotatedString != null) {
                         // The pasted text is placed on the tail of the TextField
-                        videoLink += annotatedString
+                        videoLink = "" + annotatedString
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
-                    .padding(end = 5.dp)
+                    .padding(end = 5.dp),
+                colors = ButtonDefaults.buttonColors(ON_BACKGROUND_COLOR),
             ) {
                 Text(text = "Paste", color = BACKGROUND_COLOR)
             }
 
             LoadingButton(
                 modifier = Modifier
-                    .fillMaxWidth(1f)
+                    .fillMaxWidth()
                     .padding(5.dp),
                 text = "Go",
                 enabled = !viewModel.isLoading,
