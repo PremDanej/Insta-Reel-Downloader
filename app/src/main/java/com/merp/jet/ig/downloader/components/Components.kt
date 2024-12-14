@@ -79,13 +79,16 @@ fun LoadingButton(
         modifier = modifier,
         onClick = onclick,
         enabled = enabled,
-        border = BorderStroke(ButtonDefaults.outlinedButtonBorder(enabled).width, ON_BACKGROUND_COLOR),
+        border = BorderStroke(
+            ButtonDefaults.outlinedButtonBorder(enabled).width,
+            ON_BACKGROUND_COLOR
+        ),
     )
     {
         if (isLoading) {
             CircularProgressBar()
         } else {
-            Text(text = text)
+            Text(text = text, color = ON_BACKGROUND_COLOR)
         }
     }
 }
@@ -180,7 +183,7 @@ fun ShowSettingDropDownMenu(
             onDismissRequest = { showDialog.value = false },
             modifier = Modifier.width(120.dp),
             containerColor = BACKGROUND_COLOR,
-            border = BorderStroke(0.1.dp, MaterialTheme.colorScheme.primary),
+            border = BorderStroke(0.1.dp, ON_BACKGROUND_COLOR),
         ) {
             items.forEach { element ->
                 DropdownMenuItem(
