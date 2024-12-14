@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -74,7 +75,12 @@ fun LoadingButton(
     isLoading: Boolean,
     onclick: () -> Unit
 ) {
-    OutlinedButton(modifier = modifier, onClick = onclick, enabled = enabled)
+    OutlinedButton(
+        modifier = modifier,
+        onClick = onclick,
+        enabled = enabled,
+        border = BorderStroke(ButtonDefaults.outlinedButtonBorder(enabled).width, ON_BACKGROUND_COLOR),
+    )
     {
         if (isLoading) {
             CircularProgressBar()
@@ -174,7 +180,7 @@ fun ShowSettingDropDownMenu(
             onDismissRequest = { showDialog.value = false },
             modifier = Modifier.width(120.dp),
             containerColor = BACKGROUND_COLOR,
-            border = BorderStroke(0.1.dp, ON_BACKGROUND_COLOR),
+            border = BorderStroke(0.1.dp, MaterialTheme.colorScheme.primary),
         ) {
             items.forEach { element ->
                 DropdownMenuItem(
@@ -230,7 +236,7 @@ fun ScreenDefault(
         )
     }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
-            if(!isMainScreen){
+            if (!isMainScreen) {
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
                     thickness = 0.4.dp,
