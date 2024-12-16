@@ -1,6 +1,8 @@
 package com.merp.jet.ig.downloader.screens.reel
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.webkit.URLUtil
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +40,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -71,9 +74,20 @@ fun ReelScreen(navController: NavController, viewModel: ReelViewModel = hiltView
 @Composable
 fun ScreenContent(viewModel: ReelViewModel) {
     val context = LocalContext.current
+    var videoLink by remember { mutableStateOf("") }
+
+    val view = LocalView.current
+    // Check if the activity was started with an intent
+    val intent = (view.context as? Activity)?.intent
+    if (intent?.action == Intent.ACTION_SEND) {
+        val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
+        if (sharedText != null) {
+            videoLink = sharedText
+        }
+    }
+    
     val keyboard = LocalSoftwareKeyboardController.current
     val owner = LocalLifecycleOwner.current
-    var videoLink by remember { mutableStateOf("") }
     var isDownloadable by remember { mutableStateOf(false) }
     val reelResponse = remember { mutableStateOf<ReelResponse?>(null) }
     var isSaved by remember { mutableStateOf(viewModel.isDataEmpty()) }
