@@ -1,5 +1,6 @@
 package com.merp.jet.ig.downloader.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -178,43 +179,45 @@ fun ShowSettingDropDownMenu(
             .wrapContentSize(Alignment.TopEnd)
             .absolutePadding(top = 80.dp, right = 20.dp)
     ) {
-        DropdownMenu(
-            expanded = showDialog.value,
-            onDismissRequest = { showDialog.value = false },
-            modifier = Modifier.width(120.dp),
-            containerColor = BACKGROUND_COLOR,
-            border = BorderStroke(0.1.dp, ON_BACKGROUND_COLOR),
-        ) {
-            items.forEach { element ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = element,
-                            color = ON_BACKGROUND_COLOR,
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    },
-                    onClick = {
-                        showDialog.value = false
-                        navController.navigate(
-                            route = when (element) {
-                                "About" -> AboutScreen.name
-                                "Save" -> SaveScreen.name
-                                else -> SettingScreen.name
-                            }
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = when (element) {
-                                stringResource(lbl_about) -> Default.Info
-                                stringResource(lbl_save) -> Default.Favorite
-                                else -> Default.Settings
-                            }, contentDescription = "Leading Icon",
-                            tint = ON_BACKGROUND_COLOR
-                        )
-                    }
-                )
+        AnimatedVisibility(showDialog.value) {
+            DropdownMenu(
+                expanded = true,
+                onDismissRequest = { showDialog.value = false },
+                modifier = Modifier.width(120.dp),
+                containerColor = BACKGROUND_COLOR,
+                border = BorderStroke(0.1.dp, ON_BACKGROUND_COLOR),
+            ) {
+                items.forEach { element ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = element,
+                                color = ON_BACKGROUND_COLOR,
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        },
+                        onClick = {
+                            showDialog.value = false
+                            navController.navigate(
+                                route = when (element) {
+                                    "About" -> AboutScreen.name
+                                    "Save" -> SaveScreen.name
+                                    else -> SettingScreen.name
+                                }
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = when (element) {
+                                    stringResource(lbl_about) -> Default.Info
+                                    stringResource(lbl_save) -> Default.Favorite
+                                    else -> Default.Settings
+                                }, contentDescription = "Leading Icon",
+                                tint = ON_BACKGROUND_COLOR
+                            )
+                        }
+                    )
+                }
             }
         }
     }
