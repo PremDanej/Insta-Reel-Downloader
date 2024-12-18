@@ -1,5 +1,6 @@
 package com.merp.jet.ig.downloader.screens.reel
 
+import android.content.Intent
 import android.util.Log.e
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +12,8 @@ import com.merp.jet.ig.downloader.di.Resource
 import com.merp.jet.ig.downloader.model.ReelResponse
 import com.merp.jet.ig.downloader.repository.ReelRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +26,27 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
         MutableLiveData<ReelResponse>()
     }
     var saveReelResponse = mutableListOf<ReelResponse>()
+
+    private val _reelLink = MutableStateFlow("")
+    var reelLink: StateFlow<String> = _reelLink
+    private var isIntentProcessed = false // Flag to process the intent only once
+
+    fun processIntent(intent: Intent?) {
+        if (!isIntentProcessed) {
+            viewModelScope.launch {
+                // Process only if not already set
+                val sharedText = intent?.getStringExtra(Intent.EXTRA_TEXT)
+                if (!sharedText.isNullOrEmpty() && _reelLink.value.isEmpty()) {
+                    _reelLink.value = sharedText
+                }
+                isIntentProcessed = true
+            }
+        }
+    }
+
+    fun updateReelLink(newValue: String) {
+        _reelLink.value = newValue
+    }
 
     fun getReelData(url: String) {
 
