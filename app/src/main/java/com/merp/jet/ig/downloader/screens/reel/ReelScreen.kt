@@ -2,7 +2,6 @@ package com.merp.jet.ig.downloader.screens.reel
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.webkit.URLUtil
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +28,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,7 +41,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -73,19 +73,13 @@ fun ReelScreen(navController: NavController, viewModel: ReelViewModel = hiltView
 
 @Composable
 fun ScreenContent(viewModel: ReelViewModel) {
-    val context = LocalContext.current
-    var videoLink by remember { mutableStateOf("") }
 
-    val view = LocalView.current
-    // Check if the activity was started with an intent
-    val intent = (view.context as? Activity)?.intent
-    if (intent?.action == Intent.ACTION_SEND) {
-        val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
-        if (sharedText != null) {
-            videoLink = sharedText
-        }
-    }
-    
+    val context = LocalContext.current
+    val intent = (context as? Activity)?.intent
+
+    // Call processIntent to process the data once
+    LaunchedEffect(intent) { viewModel.processIntent(intent) }
+    val videoLink by viewModel.reelLink.collectAsState()
     val keyboard = LocalSoftwareKeyboardController.current
     val owner = LocalLifecycleOwner.current
     var isDownloadable by remember { mutableStateOf(false) }
@@ -110,7 +104,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
                 .height(50.dp)
                 .padding(horizontal = 10.dp),
             value = videoLink,
-            onValueChange = { videoLink = it.trim() },
+            onValueChange = { newValue -> viewModel.updateReelLink(newValue) },
             placeholder = { Text(text = "Reel Link") },
             keyboardActions = KeyboardActions(onDone = {
                 keyboard?.hide()
@@ -137,7 +131,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
                 if (videoLink.isNotEmpty()) {
                     IconButton(
                         modifier = Modifier.size(26.dp),
-                        onClick = { videoLink = "" }) {
+                        onClick = { viewModel.updateReelLink("") }) {
                         Icon(
                             imageVector = Filled.Clear,
                             contentDescription = "Clear"
@@ -159,7 +153,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
                 onClick = {
                     if (annotatedString != null) {
                         // The pasted text is placed on the tail of the TextField
-                        videoLink = "" + annotatedString
+                        viewModel.updateReelLink(annotatedString.text)
                     }
                 },
                 modifier = Modifier
