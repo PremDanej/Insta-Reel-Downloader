@@ -9,4 +9,9 @@
     <string name="lbl_dark_mode">Dark</string>
     <string name="lbl_version">version: v1.0.0</string>
     <string name="lbl_made_with">" IG Downloader made with"</string>
+    <string name="lbl_enter_valid_reel_link">Enter valid reel link</string>
+    <string name="lbl_remove_successfully">Remove Successfully</string>
+    <string name="lbl_save_successfully">Save Successfully</string>
+    <string name="lbl_invalid_link_please_try_again">Invalid link! Please try again</string>
+    <string name="lbl_reel_link">Reel Link</string>
 </resources>
