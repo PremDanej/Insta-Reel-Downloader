@@ -101,12 +101,12 @@ fun LoadingIconButton(
     isLoading: Boolean,
     onclick: () -> Unit
 ) {
-    IconButton(onClick = onclick, enabled = enabled)
+    IconButton(modifier = Modifier.size(40.dp), onClick = onclick, enabled = enabled)
     {
         if (isLoading) {
             CircularProgressBar()
         } else {
-            Icon(icon, null)
+            Icon(icon, null, Modifier.size(20.dp))
         }
     }
 }
