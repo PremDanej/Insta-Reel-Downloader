@@ -48,22 +48,30 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import com.merp.jet.ig.downloader.R
-import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
+import com.merp.jet.ig.downloader.R.string.app_name
+import com.merp.jet.ig.downloader.R.string.lbl_reel_link
+import com.merp.jet.ig.downloader.R.string.lbl_enter_valid_reel_link
+import com.merp.jet.ig.downloader.R.string.lbl_invalid_link_please_try_again
+import com.merp.jet.ig.downloader.R.string.lbl_remove_successfully
+import com.merp.jet.ig.downloader.R.string.lbl_save_successfully
+import com.merp.jet.ig.downloader.R.string.lbl_go
+import com.merp.jet.ig.downloader.R.string.lbl_paste
 import com.merp.jet.ig.downloader.components.HorizontalSpace
 import com.merp.jet.ig.downloader.components.LoadingButton
 import com.merp.jet.ig.downloader.components.LoadingIconButton
+import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ScreenDefault
 import com.merp.jet.ig.downloader.components.VideoCard
 import com.merp.jet.ig.downloader.model.ReelResponse
+import com.merp.jet.ig.downloader.utils.Constants
 import com.merp.jet.ig.downloader.utils.Utils.downloadReel
 import com.merp.jet.ig.downloader.utils.Utils.showToast
 
 @Composable
 fun ReelScreen(navController: NavController, viewModel: ReelViewModel = hiltViewModel()) {
     ScreenDefault(
-        title = stringResource(R.string.app_name),
+        title = stringResource(app_name),
         isMainScreen = true,
         navController = navController
     ) {
@@ -105,7 +113,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
                 .padding(horizontal = 10.dp),
             value = videoLink,
             onValueChange = { newValue -> viewModel.updateReelLink(newValue) },
-            placeholder = { Text(text = "Reel Link") },
+            placeholder = { Text(text = stringResource(lbl_reel_link)) },
             keyboardActions = KeyboardActions(onDone = {
                 keyboard?.hide()
                 focusManager.clearFocus()
@@ -161,21 +169,21 @@ fun ScreenContent(viewModel: ReelViewModel) {
                     .padding(end = 5.dp),
                 colors = ButtonDefaults.buttonColors(ON_BACKGROUND_COLOR),
             ) {
-                Text(text = "Paste", color = BACKGROUND_COLOR)
+                Text(text = stringResource(lbl_paste), color = BACKGROUND_COLOR)
             }
 
             LoadingButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp),
-                text = "Go",
+                text = stringResource(lbl_go),
                 enabled = !viewModel.isLoading,
                 isLoading = viewModel.isLoading
             ) {
 
                 if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
-                    showToast(context, message = "Please enter a valid link")
-                } else if (videoLink.contains("https://www.instagram.com/reel/")) {
+                    showToast(context, message = context.getString(lbl_enter_valid_reel_link))
+                } else if (videoLink.contains(Constants.INSTA_REEL)) {
                     viewModel.saveReelResponse.clear()
                     viewModel.getSaveReelByUrl(videoLink)
                     viewModel.isLoading = true
@@ -184,7 +192,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
                         reelResponse.value = it
                         isDownloadable = true
                     }
-                } else showToast(context, "Enter valid reel link")
+                } else showToast(context, context.getString(lbl_enter_valid_reel_link))
 
             }
         }
@@ -198,17 +206,17 @@ fun ScreenContent(viewModel: ReelViewModel) {
                         if (isSaved) {
                             viewModel.deleteSaveReel(reelResponse)
                             isSaved = false
-                            showToast(context, "Remove Successfully")
+                            showToast(context, context.getString(lbl_remove_successfully))
                         } else {
                             viewModel.saveReel(reelResponse)
                             isSaved = true
-                            showToast(context, "Save Successfully")
+                            showToast(context, context.getString(lbl_save_successfully))
                         }
                         viewModel.saveReelResponse.clear()
                     }
                 }
             } else {
-                showToast(context, message = "Invalid link! Please try again")
+                showToast(context, message = stringResource(lbl_invalid_link_please_try_again))
                 isDownloadable = false
             }
         }
