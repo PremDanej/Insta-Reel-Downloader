@@ -18,7 +18,8 @@ coilCompose = "2.7.0" #Coil
 room = "2.6.1" #Room
 serializationJson = "1.4.1"
 serializationJsonPlugin = "2.0.21"
-materialIconsExtended = "1.7.5" # Icon
+materialIconsExtended = "1.7.6" # Icon
+datastorePreferences = "1.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,6 +66,9 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 # Material-Icon
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+
+# DataStore
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

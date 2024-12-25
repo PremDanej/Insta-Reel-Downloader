@@ -98,4 +98,7 @@ dependencies {
 
     // Material-Extended-Icons
     implementation libs.androidx.material.icons.extended
+
+    // Preferences DataStore
+    implementation libs.androidx.datastore.preferences
 }
