@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.merp.jet.ig.downloader.data.InstaReelDao
 import com.merp.jet.ig.downloader.data.InstaReelDatabase
+import com.merp.jet.ig.downloader.data.preference.InstaReelDataStore
 import com.merp.jet.ig.downloader.network.ReelApi
 import com.merp.jet.ig.downloader.utils.Constants
 import dagger.Module
@@ -48,8 +49,13 @@ class AppModule {
     @Singleton
     @Provides
     fun provideInstaReelDatabase(@ApplicationContext context: Context): InstaReelDatabase {
-        return Room.databaseBuilder(context, InstaReelDatabase::class.java, "insta_database")
+        return Room.databaseBuilder(context, InstaReelDatabase::class.java, Constants.INSTA_DATABASE)
             .fallbackToDestructiveMigration()
             .build()
     }
+
+    @Singleton
+    @Provides
+    fun provideInstaReelDataStore(@ApplicationContext context: Context) =
+        InstaReelDataStore(context)
 }
