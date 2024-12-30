@@ -37,9 +37,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -55,11 +57,11 @@ val BACKGROUND_COLOR: Color @Composable get() = MaterialTheme.colorScheme.backgr
 val ON_BACKGROUND_COLOR: Color @Composable get() = MaterialTheme.colorScheme.onBackground
 
 @Composable
-fun CircularProgressBar(modifier: Modifier = Modifier) {
+fun CircularProgressBar(modifier: Modifier = Modifier, strokeWidth: Dp = 3.dp) {
     CircularProgressIndicator(
         modifier = modifier.size(24.dp),
         color = ON_BACKGROUND_COLOR,
-        strokeWidth = 3.dp
+        strokeWidth = strokeWidth
     )
 }
 
@@ -97,6 +99,23 @@ fun LoadingButton(
 @Composable
 fun LoadingIconButton(
     icon: ImageVector,
+    enabled: Boolean,
+    isLoading: Boolean,
+    onclick: () -> Unit
+) {
+    IconButton(modifier = Modifier.size(40.dp), onClick = onclick, enabled = enabled)
+    {
+        if (isLoading) {
+            CircularProgressBar()
+        } else {
+            Icon(icon, null, Modifier.size(20.dp))
+        }
+    }
+}
+
+@Composable
+fun LoadingIconButton(
+    icon: Painter,
     enabled: Boolean,
     isLoading: Boolean,
     onclick: () -> Unit
