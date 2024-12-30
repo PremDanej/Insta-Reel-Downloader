@@ -21,6 +21,6 @@ class ReelRepository @Inject constructor(private val api: ReelApi, private val i
     }
 
     suspend fun saveReel(reelResponse: ReelResponse) = instaReelDao.saveReel(reelResponse)
-    suspend fun getSaveReelByUrl(url: String): ReelResponse = instaReelDao.getSaveReelByUrl(url)
+    suspend fun getSaveReelByUrl(url: String): ReelResponse? = instaReelDao.getSaveReelByUrl(url)
     suspend fun deleteSaveReel(reelResponse: ReelResponse) = instaReelDao.deleteSaveReel(reelResponse)
 }

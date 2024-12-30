@@ -15,7 +15,7 @@ interface InstaReelDao {
     fun getSaveReels(): Flow<List<ReelResponse>>
 
     @Query("SELECT * FROM reel_tbl WHERE url =:url")
-    suspend fun getSaveReelByUrl(url: String): ReelResponse
+    suspend fun getSaveReelByUrl(url: String): ReelResponse?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveReel(reel: ReelResponse)
