@@ -12,6 +12,7 @@ import com.merp.jet.ig.downloader.di.Resource
 import com.merp.jet.ig.downloader.model.ReelResponse
 import com.merp.jet.ig.downloader.repository.ReelRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,11 +23,10 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
 
     var isLoading by mutableStateOf(false)
     var isError by mutableStateOf(false)
+    var isSaved by mutableStateOf(false)
     val reelResponse: MutableLiveData<ReelResponse> by lazy {
         MutableLiveData<ReelResponse>()
     }
-    var saveReelResponse = mutableListOf<ReelResponse>()
-
     private val _reelLink = MutableStateFlow("")
     var reelLink: StateFlow<String> = _reelLink
     private var isIntentProcessed = false // Flag to process the intent only once
@@ -83,10 +83,11 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
 
 
     fun getSaveReelByUrl(url: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val saveElement = repository.getSaveReelByUrl(url)
-                saveReelResponse.add(saveElement)
+                repository.getSaveReelByUrl(url)?.let {
+                    isSaved = it.url.trim() == url.trim()
+                }
             } catch (e: Exception) {
                 e("REEL", "REEL_VIEWMODEL ERR | getSaveReelByUrl(): ${e.message}")
             }
@@ -101,9 +102,5 @@ class ReelViewModel @Inject constructor(private val repository: ReelRepository) 
                 e("REEL", "REEL_VIEWMODEL ERR | deleteSaveReel(): ${e.message}")
             }
         }
-    }
-
-    fun isDataEmpty(): Boolean {
-        return saveReelResponse.isNotEmpty()
     }
 }
