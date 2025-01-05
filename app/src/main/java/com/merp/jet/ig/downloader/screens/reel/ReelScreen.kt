@@ -3,6 +3,8 @@ package com.merp.jet.ig.downloader.screens.reel
 import android.app.Activity
 import android.content.Context
 import android.webkit.URLUtil
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +21,7 @@ import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -37,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -49,17 +52,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.merp.jet.ig.downloader.R.string.app_name
-import com.merp.jet.ig.downloader.R.string.lbl_reel_link
 import com.merp.jet.ig.downloader.R.string.lbl_enter_valid_reel_link
+import com.merp.jet.ig.downloader.R.string.lbl_go
 import com.merp.jet.ig.downloader.R.string.lbl_invalid_link_please_try_again
+import com.merp.jet.ig.downloader.R.string.lbl_paste
+import com.merp.jet.ig.downloader.R.string.lbl_reel_link
 import com.merp.jet.ig.downloader.R.string.lbl_remove_successfully
 import com.merp.jet.ig.downloader.R.string.lbl_save_successfully
-import com.merp.jet.ig.downloader.R.string.lbl_go
-import com.merp.jet.ig.downloader.R.string.lbl_paste
+import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.HorizontalSpace
 import com.merp.jet.ig.downloader.components.LoadingButton
 import com.merp.jet.ig.downloader.components.LoadingIconButton
-import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ScreenDefault
 import com.merp.jet.ig.downloader.components.VideoCard
@@ -84,24 +87,25 @@ fun ScreenContent(viewModel: ReelViewModel) {
 
     val context = LocalContext.current
     val intent = (context as? Activity)?.intent
-
-    // Call processIntent to process the data once
     LaunchedEffect(intent) { viewModel.processIntent(intent) }
-    val videoLink by viewModel.reelLink.collectAsState()
     val keyboard = LocalSoftwareKeyboardController.current
     val owner = LocalLifecycleOwner.current
-    var isDownloadable by remember { mutableStateOf(false) }
-    val reelResponse = remember { mutableStateOf<ReelResponse?>(null) }
-    var isSaved by remember { mutableStateOf(viewModel.isDataEmpty()) }
     val focusManager = LocalFocusManager.current
     val clipboardManager = LocalClipboardManager.current
     val annotatedString = clipboardManager.getText()
+    val videoLink by viewModel.reelLink.collectAsState()
+    var isDownloadable by remember { mutableStateOf(false) }
+    val reelResponse = remember { mutableStateOf<ReelResponse?>(null) }
+    val columnAnimation = remember { Animatable(0f) }
+    LaunchedEffect(true) {
+        columnAnimation.animateTo(1f)
+    }
 
     Column(
-        Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(BACKGROUND_COLOR)
-            .padding(bottom = 100.dp),
+            .padding(bottom = 100.dp)
+            .scale(columnAnimation.value),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -152,39 +156,27 @@ fun ScreenContent(viewModel: ReelViewModel) {
         HorizontalSpace()
 
         Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp),
+            modifier = Modifier.fillMaxWidth().padding(10.dp, 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = {
-                    if (annotatedString != null) {
-                        // The pasted text is placed on the tail of the TextField
-                        viewModel.updateReelLink(annotatedString.text)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .padding(end = 5.dp),
+                onClick = { viewModel.updateReelLink(annotatedString?.text?.trim() ?: "") },
+                modifier = Modifier.fillMaxWidth(0.5f).padding(end = 5.dp),
                 colors = ButtonDefaults.buttonColors(ON_BACKGROUND_COLOR),
             ) {
                 Text(text = stringResource(lbl_paste), color = BACKGROUND_COLOR)
             }
 
             LoadingButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp),
+                modifier = Modifier.fillMaxWidth().padding(start = 5.dp),
                 text = stringResource(lbl_go),
                 enabled = !viewModel.isLoading,
                 isLoading = viewModel.isLoading
             ) {
-
                 if (videoLink.isEmpty() || !URLUtil.isValidUrl(videoLink)) {
                     showToast(context, message = context.getString(lbl_enter_valid_reel_link))
                 } else if (videoLink.contains(Constants.INSTA_REEL)) {
-                    viewModel.saveReelResponse.clear()
+                    viewModel.isSaved = false
                     viewModel.getSaveReelByUrl(videoLink)
                     viewModel.isLoading = true
                     viewModel.getReelData(videoLink)
@@ -193,7 +185,6 @@ fun ScreenContent(viewModel: ReelViewModel) {
                         isDownloadable = true
                     }
                 } else showToast(context, context.getString(lbl_enter_valid_reel_link))
-
             }
         }
 
@@ -202,17 +193,16 @@ fun ScreenContent(viewModel: ReelViewModel) {
         if (isDownloadable && !viewModel.isLoading) {
             if (!viewModel.isError) {
                 reelResponse.value?.let { reelResponse ->
-                    ReelDownloaderCard(reelResponse, isSaved) {
-                        if (isSaved) {
+                    ReelDownloaderCard(reelResponse, viewModel.isSaved) {
+                        if (viewModel.isSaved) {
                             viewModel.deleteSaveReel(reelResponse)
-                            isSaved = false
+                            viewModel.isSaved = false
                             showToast(context, context.getString(lbl_remove_successfully))
                         } else {
                             viewModel.saveReel(reelResponse)
-                            isSaved = true
+                            viewModel.isSaved = true
                             showToast(context, context.getString(lbl_save_successfully))
                         }
-                        viewModel.saveReelResponse.clear()
                     }
                 }
             } else {
@@ -235,7 +225,7 @@ fun ReelDownloaderCard(
 
     VideoCard(reelResponse = reelResponse) {
         LoadingIconButton(
-            icon = Filled.Download,
+            icon = Filled.SaveAlt,
             enabled = !isDownloading,
             isLoading = isDownloading
         ) {
