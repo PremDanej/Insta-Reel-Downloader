@@ -222,8 +222,12 @@ fun ReelDownloaderCard(
 
     val context: Context = LocalContext.current
     var isDownloading by rememberSaveable { mutableStateOf(false) }
+    val columnAnimation = remember { Animatable(0.2f) }
+    LaunchedEffect(true) {
+        columnAnimation.animateTo(1f, tween(200))
+    }
 
-    VideoCard(reelResponse = reelResponse) {
+    VideoCard(reelResponse = reelResponse, modifier = Modifier.scale(columnAnimation.value)) {
         LoadingIconButton(
             icon = Filled.SaveAlt,
             enabled = !isDownloading,
