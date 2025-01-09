@@ -4,9 +4,9 @@
     <string name="lbl_about">About</string>
     <string name="lbl_save">Save</string>
     <string name="lbl_setting">Setting</string>
-    <string name="lbl_light_mode">Light</string>
-    <string name="lbl_dark_mode">Dark</string>
-    <string name="lbl_version">version: v1.0.0</string>
+    <string name="lbl_dynamic_theme">Dynamic theme</string>
+    <string name="lbl_dark_mode">Dark mode</string>
+    <string name="lbl_version">version</string>
     <string name="lbl_made_with">" IG Downloader made with"</string>
     <string name="lbl_reel_link">Reel Link</string>
     <string name="lbl_paste">Paste</string>
