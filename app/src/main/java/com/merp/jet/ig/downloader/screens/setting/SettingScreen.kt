@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.merp.jet.ig.downloader.R.string.lbl_dark_mode
+import com.merp.jet.ig.downloader.R.string.lbl_dynamic_theme
 import com.merp.jet.ig.downloader.R.string.lbl_setting
 import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
@@ -45,9 +47,8 @@ fun SettingScreen(
         onBackPressed = { navController.popBackStack() }
     ) {
         Column(
-            Modifier
-                .fillMaxSize()
-                .background(BACKGROUND_COLOR),
+            modifier = Modifier.fillMaxSize()
+                .background(BACKGROUND_COLOR)
         ) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ChangeDynamicTheme(checked = isDynamicColor) {
@@ -64,13 +65,11 @@ fun SettingScreen(
 @Composable
 fun ChangeDynamicTheme(checked: MutableState<Boolean>, onClick: (Boolean) -> Unit = {}) {
     Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        Arrangement.SpaceBetween,
-        Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = if (checked.value) "Turn off Dynamic theme" else "Turn on Dynamic theme")
+        Text(text = stringResource(lbl_dynamic_theme))
         Switch(
             checked = checked.value,
             onCheckedChange = {
@@ -107,13 +106,11 @@ fun ChangeDynamicTheme(checked: MutableState<Boolean>, onClick: (Boolean) -> Uni
 @Composable
 fun ChangeTheme(checked: MutableState<Boolean>, onClick: (Boolean) -> Unit = {}) {
     Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        Arrangement.SpaceBetween,
-        Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = if (checked.value) "Turn off dark mode" else "Turn on dark mode")
+        Text(text = stringResource(lbl_dark_mode))
         Switch(
             checked = checked.value,
             onCheckedChange = {
