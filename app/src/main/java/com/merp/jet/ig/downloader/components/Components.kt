@@ -66,8 +66,8 @@ fun CircularProgressBar(modifier: Modifier = Modifier, strokeWidth: Dp = 3.dp) {
 }
 
 @Composable
-fun HorizontalSpace(modifier: Modifier = Modifier) {
-    Spacer(modifier.height(16.dp))
+fun HorizontalSpace(dp: Dp = 16.dp) {
+    Spacer(Modifier.height(dp))
 }
 
 @Composable
