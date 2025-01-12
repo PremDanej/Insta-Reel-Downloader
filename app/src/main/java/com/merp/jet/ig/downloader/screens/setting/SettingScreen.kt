@@ -1,6 +1,8 @@
 package com.merp.jet.ig.downloader.screens.setting
 
 import android.os.Build
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,12 +22,17 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.merp.jet.ig.downloader.R.string.lbl_dark_mode
+import com.merp.jet.ig.downloader.R.string.lbl_dynamic_theme
 import com.merp.jet.ig.downloader.R.string.lbl_setting
 import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
@@ -44,10 +51,14 @@ fun SettingScreen(
         navController = navController,
         onBackPressed = { navController.popBackStack() }
     ) {
+        val columnAnimation = remember { Animatable(0.9f) }
+        LaunchedEffect(true) {
+            columnAnimation.animateTo(1f, tween(300))
+        }
         Column(
-            Modifier
-                .fillMaxSize()
-                .background(BACKGROUND_COLOR),
+            modifier = Modifier.fillMaxSize()
+                .background(BACKGROUND_COLOR)
+                .scale(columnAnimation.value),
         ) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ChangeDynamicTheme(checked = isDynamicColor) {
@@ -64,13 +75,11 @@ fun SettingScreen(
 @Composable
 fun ChangeDynamicTheme(checked: MutableState<Boolean>, onClick: (Boolean) -> Unit = {}) {
     Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        Arrangement.SpaceBetween,
-        Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = if (checked.value) "Turn off Dynamic theme" else "Turn on Dynamic theme")
+        Text(text = stringResource(lbl_dynamic_theme))
         Switch(
             checked = checked.value,
             onCheckedChange = {
@@ -107,13 +116,11 @@ fun ChangeDynamicTheme(checked: MutableState<Boolean>, onClick: (Boolean) -> Uni
 @Composable
 fun ChangeTheme(checked: MutableState<Boolean>, onClick: (Boolean) -> Unit = {}) {
     Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        Arrangement.SpaceBetween,
-        Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = if (checked.value) "Turn off dark mode" else "Turn on dark mode")
+        Text(text = stringResource(lbl_dark_mode))
         Switch(
             checked = checked.value,
             onCheckedChange = {
