@@ -243,6 +243,15 @@ fun ShowSettingDropDownMenu(
 }
 
 @Composable
+fun Divider(thickness: Dp = 0.4.dp) {
+    HorizontalDivider(
+        modifier = Modifier.fillMaxWidth(),
+        thickness = thickness,
+        color = ON_BACKGROUND_COLOR
+    )
+}
+
+@Composable
 fun ScreenDefault(
     title: String = stringResource(app_name),
     isMainScreen: Boolean = true,
