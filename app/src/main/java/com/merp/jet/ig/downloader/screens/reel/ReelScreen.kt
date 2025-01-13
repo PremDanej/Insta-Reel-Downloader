@@ -26,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -115,6 +116,7 @@ fun ScreenContent(viewModel: ReelViewModel) {
                 .fillMaxWidth()
                 .height(50.dp)
                 .padding(horizontal = 10.dp),
+            textStyle = MaterialTheme.typography.labelLarge,
             value = videoLink,
             onValueChange = { newValue -> viewModel.updateReelLink(newValue) },
             placeholder = { Text(text = stringResource(lbl_reel_link)) },
