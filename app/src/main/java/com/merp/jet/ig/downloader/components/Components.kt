@@ -271,11 +271,7 @@ fun ScreenDefault(
     }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             if (!isMainScreen) {
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 0.4.dp,
-                    color = ON_BACKGROUND_COLOR
-                )
+                Divider()
             }
             screenContent()
         }
