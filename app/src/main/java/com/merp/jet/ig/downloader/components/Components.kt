@@ -66,8 +66,8 @@ fun CircularProgressBar(modifier: Modifier = Modifier, strokeWidth: Dp = 3.dp) {
 }
 
 @Composable
-fun HorizontalSpace(modifier: Modifier = Modifier) {
-    Spacer(modifier.height(16.dp))
+fun HorizontalSpace(dp: Dp = 16.dp) {
+    Spacer(Modifier.height(dp))
 }
 
 @Composable
@@ -243,6 +243,15 @@ fun ShowSettingDropDownMenu(
 }
 
 @Composable
+fun Divider(thickness: Dp = 0.4.dp) {
+    HorizontalDivider(
+        modifier = Modifier.fillMaxWidth(),
+        thickness = thickness,
+        color = ON_BACKGROUND_COLOR
+    )
+}
+
+@Composable
 fun ScreenDefault(
     title: String = stringResource(app_name),
     isMainScreen: Boolean = true,
@@ -262,11 +271,7 @@ fun ScreenDefault(
     }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             if (!isMainScreen) {
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 0.4.dp,
-                    color = ON_BACKGROUND_COLOR
-                )
+                Divider()
             }
             screenContent()
         }
