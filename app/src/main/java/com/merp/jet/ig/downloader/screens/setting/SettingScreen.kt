@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,14 +12,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.LiveHelp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.RestartAlt
+import androidx.compose.material.icons.outlined.SupportAgent
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,18 +43,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.merp.jet.ig.downloader.R.string.app_name
+import com.merp.jet.ig.downloader.R.string.lbl_about
+import com.merp.jet.ig.downloader.R.string.lbl_change_download_location
+import com.merp.jet.ig.downloader.R.string.lbl_change_language
+import com.merp.jet.ig.downloader.R.string.lbl_clear_data
 import com.merp.jet.ig.downloader.R.string.lbl_dark_mode
 import com.merp.jet.ig.downloader.R.string.lbl_dynamic_theme
+import com.merp.jet.ig.downloader.R.string.lbl_faq
+import com.merp.jet.ig.downloader.R.string.lbl_help
+import com.merp.jet.ig.downloader.R.string.lbl_reset_setting
 import com.merp.jet.ig.downloader.R.string.lbl_setting
+import com.merp.jet.ig.downloader.R.string.lbl_setting_preference
+import com.merp.jet.ig.downloader.R.string.lbl_setting_support
 import com.merp.jet.ig.downloader.R.string.lbl_setting_theme
 import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
+import com.merp.jet.ig.downloader.components.Divider
 import com.merp.jet.ig.downloader.components.HorizontalSpace
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ScreenDefault
+import com.merp.jet.ig.downloader.navigation.InstaReelScreens.AboutScreen
 
 @Composable
 fun SettingScreen(
@@ -66,7 +88,7 @@ fun SettingScreen(
         }
         Column(
             modifier = Modifier.fillMaxSize()
-                .background(BACKGROUND_COLOR)
+                .verticalScroll(rememberScrollState())
                 .scale(columnAnimation.value)
         ) {
             HorizontalSpace(20.dp)
@@ -77,12 +99,24 @@ fun SettingScreen(
                 }
             }
             ChangeTheme(checked = isDark.value) { isDark.value = !isDark.value }
+            CategoryLabelWithDivider(lbl_setting_preference)
+            SubCategory(Icons.Outlined.DeleteForever, lbl_clear_data)
+            SubCategory(Icons.Outlined.RestartAlt, lbl_reset_setting)
+            SubCategory(Icons.Outlined.Translate, lbl_change_language)
+            SubCategory(Icons.Outlined.Folder, lbl_change_download_location)
+            CategoryLabelWithDivider(lbl_setting_support)
+            SubCategory(Icons.Outlined.SupportAgent, lbl_setting_support)
+            SubCategory(Icons.AutoMirrored.Outlined.HelpOutline, lbl_help)
+            SubCategory(Icons.AutoMirrored.Outlined.LiveHelp, lbl_faq)
+            SubCategory(Icons.Outlined.Info, lbl_about){
+                navController.navigate(AboutScreen.name)
+            }
         }
     }
 }
 
 @Composable
-fun CategoryLabelText(@StringRes resId: Int) {
+private fun CategoryLabelText(@StringRes resId: Int = app_name) {
     Text(
         modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
         text = stringResource(id = resId),
@@ -92,7 +126,24 @@ fun CategoryLabelText(@StringRes resId: Int) {
 }
 
 @Composable
-fun ChangeDynamicTheme(checked: Boolean, onClick: () -> Unit = {}) {
+private fun CategoryLabelWithDivider(@StringRes resId: Int = app_name) {
+    HorizontalSpace(10.dp)
+    Divider()
+    HorizontalSpace(20.dp)
+    CategoryLabelText(resId)
+}
+
+@Composable
+private fun SwitchIcon(icon: ImageVector) {
+    Icon(
+        imageVector = icon,
+        contentDescription = "Icon",
+        modifier = Modifier.size(SwitchDefaults.IconSize)
+    )
+}
+
+@Composable
+private fun ChangeDynamicTheme(checked: Boolean, onClick: () -> Unit = {}) {
     Box(modifier = Modifier.clickable {
         onClick()
     }) {
@@ -121,17 +172,9 @@ fun ChangeDynamicTheme(checked: Boolean, onClick: () -> Unit = {}) {
                 },
                 thumbContent = {
                     if (checked) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = "Check",
-                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                        )
+                        SwitchIcon(Icons.Filled.Check)
                     } else {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Uncheck",
-                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                        )
+                        SwitchIcon(Icons.Filled.Close)
                     }
                 },
                 colors = SwitchDefaults.colors(
@@ -149,7 +192,7 @@ fun ChangeDynamicTheme(checked: Boolean, onClick: () -> Unit = {}) {
 }
 
 @Composable
-fun ChangeTheme(checked: Boolean, onClick: () -> Unit = {}) {
+private fun ChangeTheme(checked: Boolean, onClick: () -> Unit = {}) {
     Box(modifier = Modifier.clickable {
         onClick()
     }) {
@@ -178,17 +221,9 @@ fun ChangeTheme(checked: Boolean, onClick: () -> Unit = {}) {
                 },
                 thumbContent = {
                     if (checked) {
-                        Icon(
-                            imageVector = Icons.Filled.DarkMode,
-                            contentDescription = "DarkMode",
-                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                        )
+                        SwitchIcon(icon = Icons.Filled.DarkMode)
                     } else {
-                        Icon(
-                            imageVector = Icons.Filled.LightMode,
-                            contentDescription = "LightMode",
-                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                        )
+                        SwitchIcon(icon = Icons.Filled.LightMode)
                     }
                 },
                 colors = SwitchDefaults.colors(
@@ -200,6 +235,39 @@ fun ChangeTheme(checked: Boolean, onClick: () -> Unit = {}) {
                     checkedThumbColor = BACKGROUND_COLOR,
                     uncheckedThumbColor = ON_BACKGROUND_COLOR,
                 )
+            )
+        }
+    }
+}
+
+@Composable
+private fun SubCategory(
+    icon: ImageVector? = null,
+    @StringRes resId: Int = app_name,
+    onClick: () -> Unit = {}
+) {
+    Box(modifier = Modifier.clickable {
+        onClick()
+    }) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = { },
+                enabled = false
+            ) {
+                icon?.let {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = "Icon",
+                        tint = ON_BACKGROUND_COLOR
+                    )
+                }
+            }
+            Text(
+                text = stringResource(id = resId),
+                modifier = Modifier.weight(1f).padding(start = 10.dp)
             )
         }
     }
