@@ -40,7 +40,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:host="www.instagram.com"  android:mimeType="text/plain" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <data android:scheme="mailto" />
+                <category android:name="android.intent.category.APP_EMAIL" />
+            </intent-filter>
         </activity>
     </application>
+
 
 </manifest>
