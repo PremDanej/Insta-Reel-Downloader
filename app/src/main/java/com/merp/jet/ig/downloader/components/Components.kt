@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons.Default
+import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -98,6 +99,7 @@ fun LoadingButton(
 
 @Composable
 fun LoadingIconButton(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     enabled: Boolean,
     isLoading: Boolean,
@@ -108,7 +110,7 @@ fun LoadingIconButton(
         if (isLoading) {
             CircularProgressBar()
         } else {
-            Icon(icon, null, Modifier.size(20.dp))
+            Icon(icon, null, modifier.size(20.dp))
         }
     }
 }
@@ -187,11 +189,11 @@ fun ShowSettingDropDownMenu(
     showDialog: MutableState<Boolean>,
     navController: NavController = NavHostController(LocalContext.current)
 ) {
-    val items = listOf(
-        stringResource(lbl_about),
-        stringResource(lbl_save),
-        stringResource(lbl_setting)
-    )
+    val about: String = stringResource(id = lbl_about)
+    val save: String = stringResource(id = lbl_save)
+    val setting: String = stringResource(id = lbl_setting)
+    val items: List<String> = listOf(about, save, setting)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -219,8 +221,8 @@ fun ShowSettingDropDownMenu(
                             showDialog.value = false
                             navController.navigate(
                                 route = when (element) {
-                                    "About" -> AboutScreen.name
-                                    "Save" -> SaveScreen.name
+                                    about -> AboutScreen.name
+                                    save -> SaveScreen.name
                                     else -> SettingScreen.name
                                 }
                             )
@@ -228,8 +230,8 @@ fun ShowSettingDropDownMenu(
                         leadingIcon = {
                             Icon(
                                 imageVector = when (element) {
-                                    stringResource(lbl_about) -> Default.Info
-                                    stringResource(lbl_save) -> Default.Favorite
+                                    about -> Default.Info
+                                    save -> Default.BookmarkAdded
                                     else -> Default.Settings
                                 }, contentDescription = "Leading Icon",
                                 tint = ON_BACKGROUND_COLOR
