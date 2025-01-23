@@ -12,9 +12,13 @@
     <string name="lbl_paste">Paste</string>
     <string name="lbl_go">Go</string>
     <string name="lbl_enter_valid_reel_link">Enter valid reel link</string>
+    <string name="lbl_video_download_ready">Download Ready ✅</string>
+    <string name="lbl_video_quality">Quality: %1$s</string>
+    <string name="lbl_video_size">Size: %1$s</string>
     <string name="lbl_remove_successfully">Remove successfully</string>
     <string name="lbl_save_successfully">Save successfully</string>
     <string name="lbl_invalid_link_please_try_again">Invalid link! Please try again</string>
+    <string name="lbl_video_not_saved">Not a single video saved yet 😒</string>
     <string name="lbl_link_copied">Link copied</string>
     <string name="lbl_video_deleted">Video deleted</string>
     <string name="lbl_instagram_not_installed">Instagram not installed.</string>
