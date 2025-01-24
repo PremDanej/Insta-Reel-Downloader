@@ -21,6 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.merp.jet.ig.downloader.R.string.lbl_video_download_ready
+import com.merp.jet.ig.downloader.R.string.lbl_video_quality
+import com.merp.jet.ig.downloader.R.string.lbl_video_size
 import com.merp.jet.ig.downloader.model.ReelResponse
 import com.merp.jet.ig.downloader.utils.Utils.convertBase64ToBitmap
 
@@ -46,11 +50,14 @@ fun VideoCard(
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.height(140.dp).width(90.dp)
             )
-            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
-                verticalArrangement = Arrangement.SpaceEvenly) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 10.dp),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = reelResponse.title.toString(),
+                    text = stringResource(id = lbl_video_download_ready),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -58,12 +65,12 @@ fun VideoCard(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.labelLarge,
-                    text = "Quality: ${media.quality}",
+                    text = stringResource(lbl_video_quality, media.quality),
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.labelLarge,
-                    text = "Size: ${media.formattedSize}",
+                    text = stringResource(lbl_video_size, media.formattedSize),
                 )
                 Row(content = content)
             }

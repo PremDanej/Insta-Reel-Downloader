@@ -22,4 +22,7 @@ interface InstaReelDao {
 
     @Delete
     suspend fun deleteSaveReel(reel: ReelResponse)
+
+    @Query("DELETE FROM reel_tbl")
+    suspend fun deleteAllSavedReel()
 }

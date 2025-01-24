@@ -37,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipboardManager
@@ -50,6 +51,7 @@ import androidx.navigation.NavController
 import com.merp.jet.ig.downloader.R.drawable.empty_data
 import com.merp.jet.ig.downloader.R.drawable.ic_instagram
 import com.merp.jet.ig.downloader.R.string.lbl_save
+import com.merp.jet.ig.downloader.R.string.lbl_video_not_saved
 import com.merp.jet.ig.downloader.R.string.lbl_instagram_not_installed
 import com.merp.jet.ig.downloader.R.string.lbl_link_copied
 import com.merp.jet.ig.downloader.R.string.lbl_video_deleted
@@ -146,7 +148,7 @@ fun EmptyDataSet() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "Not a single video saved yet \uD83D\uDE12",
+            text = stringResource(id = lbl_video_not_saved),
             style = MaterialTheme.typography.bodyLarge,
             color = ON_BACKGROUND_COLOR
         )
@@ -165,6 +167,7 @@ fun SaveDataRow(
     VideoCard(reelResponse = reelResponse)
     {
         LoadingIconButton(
+            modifier = Modifier.rotate(-45f),
             icon = Filled.Link,
             enabled = !isDownloading,
             isLoading = false,
