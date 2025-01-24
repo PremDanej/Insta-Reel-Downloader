@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,6 +34,9 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.SupportAgent
 import androidx.compose.material.icons.outlined.Translate
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,24 +46,32 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.merp.jet.ig.downloader.R.string.app_name
 import com.merp.jet.ig.downloader.R.string.lbl_app_info
 import com.merp.jet.ig.downloader.R.string.lbl_change_download_location
 import com.merp.jet.ig.downloader.R.string.lbl_change_language
 import com.merp.jet.ig.downloader.R.string.lbl_clear_data
+import com.merp.jet.ig.downloader.R.string.lbl_confirm_delete
 import com.merp.jet.ig.downloader.R.string.lbl_dark_mode
 import com.merp.jet.ig.downloader.R.string.lbl_default_language
+import com.merp.jet.ig.downloader.R.string.lbl_delete
+import com.merp.jet.ig.downloader.R.string.lbl_delete_no
+import com.merp.jet.ig.downloader.R.string.lbl_delete_yes
 import com.merp.jet.ig.downloader.R.string.lbl_dynamic_theme
 import com.merp.jet.ig.downloader.R.string.lbl_faq
 import com.merp.jet.ig.downloader.R.string.lbl_help
@@ -67,12 +80,15 @@ import com.merp.jet.ig.downloader.R.string.lbl_setting
 import com.merp.jet.ig.downloader.R.string.lbl_setting_preference
 import com.merp.jet.ig.downloader.R.string.lbl_setting_support
 import com.merp.jet.ig.downloader.R.string.lbl_setting_theme
+import com.merp.jet.ig.downloader.R.string.lbl_video_delete
 import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.Divider
 import com.merp.jet.ig.downloader.components.HorizontalSpace
+import com.merp.jet.ig.downloader.components.LoadingButton
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ScreenDefault
 import com.merp.jet.ig.downloader.navigation.InstaReelScreens.AboutScreen
+import com.merp.jet.ig.downloader.utils.Utils.showToast
 
 @Composable
 fun SettingScreen(
@@ -87,13 +103,14 @@ fun SettingScreen(
         navController = navController,
         onBackPressed = { navController.popBackStack() }
     ) {
-
-        ScreenContent(navController, isDark, isDynamicColor)
+        val viewModel: SettingViewModel = hiltViewModel<SettingViewModel>()
+        ScreenContent(viewModel, navController, isDark, isDynamicColor)
     }
 }
 
 @Composable
 fun ScreenContent(
+    viewModel: SettingViewModel,
     navController: NavController,
     isDark: MutableState<Boolean>,
     isDynamicColor: MutableState<Boolean>
@@ -104,30 +121,60 @@ fun ScreenContent(
     }
     val context = LocalContext.current
 
+    val dialogOpen = remember {
+        mutableStateOf(false)
+    }.apply {
+        if (value) DeleteDialog(
+            dialogTitle = context.getString(lbl_delete),
+            dialogText = context.getString(lbl_confirm_delete),
+            onDismissRequest = { value = false },
+            onConfirmation = {
+                viewModel.deleteAllSavedReel()
+                showToast(context, context.getString(lbl_video_delete))
+                value = false
+            },
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .scale(columnAnimation.value)
+            .blur(if (dialogOpen.value) 5.dp else 0.dp)
     ) {
         HorizontalSpace(20.dp)
+
+        // For Theme
+
         CategoryLabelText(lbl_setting_theme)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ChangeDynamicTheme(checked = isDynamicColor.value) {
                 isDynamicColor.value = !isDynamicColor.value
             }
         }
+
         ChangeTheme(checked = isDark.value) { isDark.value = !isDark.value }
+
+        // For Preferences
+
         CategoryLabelWithDivider(lbl_setting_preference)
-        SubCategory(Icons.Outlined.DeleteForever, lbl_clear_data)
+
+        SubCategory(Icons.Outlined.DeleteForever, lbl_clear_data) {
+            dialogOpen.value = !dialogOpen.value
+        }
+
         SubCategory(Icons.Outlined.RestartAlt, lbl_reset_setting)
-        SubCategory(
-            Icons.Outlined.Translate,
-            lbl_change_language,
-            context.getString(lbl_default_language)
-        )
+
+        SubCategory(Icons.Outlined.Translate, lbl_change_language, context.getString(lbl_default_language))
+
         SubCategory(Icons.Outlined.Folder, lbl_change_download_location, "InstaReels")
+
+        // For App Support
+
         CategoryLabelWithDivider(lbl_setting_support)
+
         SubCategory(Icons.Outlined.SupportAgent, lbl_setting_support) {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 setData(Uri.parse("mailto:"))
@@ -136,8 +183,11 @@ fun ScreenContent(
             }
             context.startActivity(intent)
         }
+
         SubCategory(Icons.AutoMirrored.Outlined.HelpOutline, lbl_help)
+
         SubCategory(Icons.AutoMirrored.Outlined.LiveHelp, lbl_faq)
+
         SubCategory(Icons.Outlined.Info, lbl_app_info) {
             navController.navigate(AboutScreen.name)
         }
@@ -326,4 +376,73 @@ private fun SubCategory(
             }
         }
     }
+}
+
+@Composable
+fun DeleteDialog(
+    dialogTitle: String,
+    dialogText: String,
+    onDismissRequest: () -> Unit = {},
+    onConfirmation: () -> Unit = {},
+) {
+    val dialogAnimation = remember { Animatable(0f) }
+    LaunchedEffect(true) {
+        dialogAnimation.animateTo(1f, tween(300))
+    }
+    AlertDialog(
+        containerColor = BACKGROUND_COLOR,
+        modifier = Modifier
+            .fillMaxWidth(0.85f)
+            .scale(dialogAnimation.value)
+            .let { modifier ->
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    modifier
+                        .border(0.1.dp, ON_BACKGROUND_COLOR, RoundedCornerShape(12))
+                } else modifier
+            },
+        shape = RoundedCornerShape(12),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false
+        ),
+        title = {
+            Text(
+                text = dialogTitle,
+                color = ON_BACKGROUND_COLOR,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        text = {
+            Text(
+                text = dialogText,
+                color = ON_BACKGROUND_COLOR,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.alpha(0.7f)
+            )
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirmation() },
+                colors = ButtonDefaults.buttonColors(ON_BACKGROUND_COLOR),
+            ) {
+                Text(
+                    stringResource(id = lbl_delete_yes),
+                    color = BACKGROUND_COLOR
+                )
+            }
+        },
+        dismissButton = {
+            LoadingButton(
+                text = stringResource(id = lbl_delete_no),
+                enabled = true,
+                isLoading = false
+            ) {
+                onDismissRequest()
+            }
+        }
+    )
 }
