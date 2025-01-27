@@ -4,6 +4,7 @@ import android.util.Log.e
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.merp.jet.ig.downloader.repository.SettingRepository
+import com.merp.jet.ig.downloader.utils.Constants.LOCALE_CODE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -23,13 +24,13 @@ class SettingViewModel @Inject constructor(private val repository: SettingReposi
         }
     }
 
-    fun putString(key: String, value: String) {
-        viewModelScope.launch {
-            repository.putString(key, value)
-        }
+    fun getLanguage(): String? = runBlocking {
+        repository.getString(LOCALE_CODE)
     }
 
-    fun getString(key: String): String? = runBlocking {
-        repository.getString(key)
+    fun setLanguage(localeCode: String) {
+        viewModelScope.launch {
+            repository.putString(LOCALE_CODE, localeCode)
+        }
     }
 }
