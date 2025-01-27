@@ -11,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.merp.jet.ig.downloader.utils.Constants.DEFAULT_EN_LOCALE_CODE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,6 +21,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import java.util.Locale
 
 object Utils {
 
@@ -83,5 +85,14 @@ object Utils {
     fun convertBase64ToBitmap(base65String: String): ImageBitmap {
         val byteArray = Base64.decode(base65String, Base64.DEFAULT)
         return BitmapFactory.decodeStream(ByteArrayInputStream(byteArray)).asImageBitmap()
+    }
+
+    fun setAppLanguage(context: Context, code: String = DEFAULT_EN_LOCALE_CODE) {
+        val config = context.resources.configuration
+        val local = Locale(code)
+        Locale.setDefault(local)
+        config.setLocale(local)
+        context.createConfigurationContext(config)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
 }
