@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -82,47 +83,64 @@ fun SaveScreen(navController: NavController) {
 @Composable
 fun ScreenContent(viewModel: SaveViewModel) {
 
-    LaunchedEffect(true) { viewModel.getSaveReels() }
-    val reelResponseList: List<ReelResponse> = viewModel.savedList.collectAsState().value
-    val clipboardManager: ClipboardManager = LocalClipboardManager.current
+    LaunchedEffect(Unit) { viewModel.getSaveReels() }
+
+    val uiState by viewModel.uiState.collectAsState()
+    val clipboardManager = LocalClipboardManager.current
     val context: Context = LocalContext.current
-    if (viewModel.isLoading) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CircularProgressBar(
-                modifier = Modifier.size(40.dp),
-                strokeWidth = 2.dp
-            )
-        }
-    } else {
-        if (reelResponseList.isNotEmpty()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                items(
-                    items = reelResponseList,
-                    key = { res -> res.hashCode() }
-                )
-                { element ->
-                    SaveDataRow(
-                        reelResponse = element,
-                        onCopyAction = {
-                            clipboardManager.setClip(ClipEntry(ClipData.newPlainText("text",element.url)))
-                            showToast(context, context.getString(lbl_link_copied))
-                        },
-                        onDeleteAction = {
-                            viewModel.deleteSaveReel(element)
-                            showToast(context, context.getString(lbl_video_deleted))
-                        }
-                    )
+
+    when{
+        uiState.isLoading -> LoadingView()
+        uiState.reels.isNotEmpty() -> ReelListView(
+            reelList = uiState.reels,
+            clipboardManager = clipboardManager,
+            context = context,
+            onDelete = { viewModel.deleteSaveReel(it)}
+        )
+        else -> EmptyDataSet()
+    }
+}
+
+@Composable
+private fun LoadingView() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressBar(
+            modifier = Modifier.size(40.dp),
+            strokeWidth = 2.dp
+        )
+    }
+}
+
+
+@Composable
+private fun ReelListView(
+    reelList: List<ReelResponse>,
+    clipboardManager: ClipboardManager,
+    context: Context,
+    onDelete: (ReelResponse) -> Unit
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(8.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(
+            items = reelList,
+            key = { it.thumbnail }
+        ) { reel ->
+            SaveDataRow(
+                reelResponse = reel,
+                onCopyAction = {
+                    clipboardManager.setClip(ClipEntry(ClipData.newPlainText("text", reel.url)))
+                    showToast(context, context.getString(lbl_link_copied))
+                },
+                onDeleteAction = {
+                    onDelete(reel)
+                    showToast(context, context.getString(lbl_video_deleted))
                 }
-            }
-        } else {
-            EmptyDataSet()
+            )
         }
     }
 }
@@ -130,11 +148,13 @@ fun ScreenContent(viewModel: SaveViewModel) {
 @Composable
 fun EmptyDataSet() {
     val columnAnimation = remember { Animatable(0f) }
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         columnAnimation.animateTo(1f,tween(200))
     }
+
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(BACKGROUND_COLOR)
             .padding(bottom = 100.dp)
             .scale(columnAnimation.value),
@@ -161,41 +181,62 @@ fun SaveDataRow(
     onCopyAction: () -> Unit,
     onDeleteAction: () -> Unit
 ) {
-    val context = LocalContext.current
     var isDownloading by rememberSaveable { mutableStateOf(false) }
 
-    VideoCard(reelResponse = reelResponse)
-    {
-        LoadingIconButton(
-            modifier = Modifier.rotate(-45f),
-            icon = Filled.Link,
-            enabled = !isDownloading,
-            isLoading = false,
-            onclick = onCopyAction
-        )
-        LoadingIconButton(
-            icon = Filled.SaveAlt,
-            enabled = !isDownloading,
-            isLoading = isDownloading
-        ) {
-            isDownloading = true
-            downloadReel(reelResponse.medias[0].url, context) { isDownloading = false }
-        }
-        LoadingIconButton(
-            icon = Filled.DeleteOutline,
-            enabled = !isDownloading,
-            isLoading = false,
-            onclick = onDeleteAction
-        )
-        LoadingIconButton(
-            icon = painterResource(id = ic_instagram),
-            enabled = !isDownloading,
-            isLoading = false,
-            onclick = {
-                onInstaOpen(context, reelResponse.url)
-            }
+    VideoCard(reelResponse = reelResponse) {
+        ActionButtons(
+            reelResponse = reelResponse,
+            isDownloading = isDownloading,
+            onCopy = onCopyAction,
+            onDelete = onDeleteAction,
+            onStartDownload = { isDownloading = true },
+            onDownloadComplete = { isDownloading = false }
         )
     }
+}
+
+@Composable
+private fun ActionButtons(
+    reelResponse: ReelResponse,
+    isDownloading: Boolean,
+    onCopy: () -> Unit,
+    onDelete: () -> Unit,
+    onStartDownload: () -> Unit,
+    onDownloadComplete: () -> Unit
+) {
+    val context = LocalContext.current
+
+    LoadingIconButton(
+        modifier = Modifier.rotate(-45f),
+        icon = Filled.Link,
+        enabled = !isDownloading,
+        isLoading = false,
+        onclick = onCopy
+    )
+    LoadingIconButton(
+        icon = Filled.SaveAlt,
+        enabled = !isDownloading,
+        isLoading = isDownloading
+    ) {
+        onStartDownload()
+        downloadReel(reelResponse.medias[0].url, context) {
+            onDownloadComplete()
+        }
+    }
+    LoadingIconButton(
+        icon = Filled.DeleteOutline,
+        enabled = !isDownloading,
+        isLoading = false,
+        onclick = onDelete
+    )
+    LoadingIconButton(
+        icon = painterResource(id = ic_instagram),
+        enabled = !isDownloading,
+        isLoading = false,
+        onclick = {
+            onInstaOpen(context, reelResponse.url)
+        }
+    )
 }
 
 fun onInstaOpen(context: Context, url: String){
@@ -209,11 +250,10 @@ fun onInstaOpen(context: Context, url: String){
 }
 
 fun isIntentAvailable(context: Context, intent: Intent): Boolean {
-    val packageManager = context.packageManager
-    try {
-        packageManager.getPackageInfo("${intent.`package`}", PackageManager.GET_ACTIVITIES)
-        return true
+    return try {
+        context.packageManager.getPackageInfo(intent.`package` ?: "", PackageManager.GET_ACTIVITIES)
+        true
     } catch (e: PackageManager.NameNotFoundException) {
-        return false
+        false
     }
 }
