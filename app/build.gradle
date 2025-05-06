@@ -23,8 +23,16 @@ android {
         }
     }
 
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
+    def baseUrl = properties.getProperty("base.url")
+
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", baseUrl)
+        }
         release {
+            buildConfigField("String", "BASE_URL", baseUrl)
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -39,6 +47,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.1'
