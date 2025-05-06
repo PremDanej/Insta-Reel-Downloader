@@ -133,21 +133,21 @@ fun ScreenContent(
     LaunchedEffect(true) {
         columnAnimation.animateTo(1f, tween(300))
     }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var dialogState by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
 
-    val dialogOpen = remember {
-        mutableStateOf(false)
-    }.apply {
-        if (value) DeleteDialog(
+    // Dialog & Bottom Sheet
+    if (dialogState) {
+        DeleteDialog(
             dialogTitle = context.getString(lbl_delete),
             dialogText = context.getString(lbl_confirm_delete),
-            onDismissRequest = { value = false },
+            onDismissRequest = { dialogState = false },
             onConfirmation = {
                 viewModel.deleteAllSavedReel()
                 showToast(context, context.getString(lbl_video_delete))
-                value = false
+                dialogState = false
             },
         )
     }
@@ -157,9 +157,9 @@ fun ScreenContent(
             sheetState = sheetState,
             selectedLanguage = viewModel.getLanguage() ?: DEFAULT_EN_LOCALE_CODE,
             onDismissRequest = { showBottomSheet = false },
-        ){ languageCode ->
+        ) { languageCode ->
             viewModel.setLanguage(languageCode)
-            setAppLanguage(context,languageCode)
+            setAppLanguage(context, languageCode)
         }
     }
 
@@ -168,49 +168,37 @@ fun ScreenContent(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .scale(columnAnimation.value)
-            .blur(if (dialogOpen.value) 5.dp else 0.dp)
+            .blur(if (dialogState) 5.dp else 0.dp)
     ) {
         HorizontalSpace(20.dp)
 
-        // For Theme
-
+        // Theme Settings
         CategoryLabelText(lbl_setting_theme)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ChangeDynamicTheme(checked = isDynamicColor.value) {
                 isDynamicColor.value = !isDynamicColor.value
             }
         }
-
         ChangeTheme(checked = isDark.value) { isDark.value = !isDark.value }
 
-        // For Preferences
-
+        // Preferences
         CategoryLabelWithDivider(lbl_setting_preference)
-
-        SubCategory(Icons.Outlined.DeleteForever, lbl_clear_data) {
-            dialogOpen.value = !dialogOpen.value
-        }
-
+        SubCategory(Icons.Outlined.DeleteForever, lbl_clear_data) { dialogState = true }
         SubCategory(Icons.Outlined.RestartAlt, lbl_reset_setting) {
             viewModel.setLanguage(DEFAULT_EN_LOCALE_CODE)
             setAppLanguage(context, DEFAULT_EN_LOCALE_CODE)
         }
-
         SubCategory(
-            icon = Icons.Outlined.Translate,
-            resId = lbl_change_language,
-            extraValue = context.getString(lbl_default_language)
+            Icons.Outlined.Translate,
+            lbl_change_language,
+            context.getString(lbl_default_language)
         ) {
             showBottomSheet = true
         }
-
         SubCategory(Icons.Outlined.Folder, lbl_change_download_location, "InstaReels")
 
-        // For App Support
-
+        // App Support
         CategoryLabelWithDivider(lbl_setting_support)
-
         SubCategory(Icons.Outlined.SupportAgent, lbl_setting_support) {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 setData(Uri.parse("mailto:"))
@@ -219,11 +207,8 @@ fun ScreenContent(
             }
             context.startActivity(intent)
         }
-
         SubCategory(Icons.AutoMirrored.Outlined.HelpOutline, lbl_help)
-
         SubCategory(Icons.AutoMirrored.Outlined.LiveHelp, lbl_faq)
-
         SubCategory(Icons.Outlined.Info, lbl_app_info) {
             navController.navigate(AboutScreen.name)
         }
@@ -249,6 +234,52 @@ private fun CategoryLabelWithDivider(@StringRes resId: Int = app_name) {
     Divider()
     HorizontalSpace(20.dp)
     CategoryLabelText(resId)
+}
+
+@Composable
+private fun SubCategory(
+    icon: ImageVector? = null,
+    @StringRes resId: Int = app_name,
+    extraValue: String? = null,
+    onClick: () -> Unit = {}
+) {
+    Box(modifier = Modifier.clickable { onClick() }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = { },
+                enabled = false
+            ) {
+                icon?.let {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = "Icon",
+                        tint = ON_BACKGROUND_COLOR
+                    )
+                }
+            }
+            Text(
+                text = stringResource(id = resId),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 10.dp)
+            )
+            extraValue?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall
+                        .copy(fontWeight = FontWeight.SemiBold),
+                    modifier = Modifier
+                        .padding(end = 10.dp)
+                        .alpha(0.6f)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -289,15 +320,9 @@ private fun ChangeDynamicTheme(checked: Boolean, onClick: () -> Unit = {}) {
             )
             Switch(
                 checked = checked,
-                onCheckedChange = {
-                    onClick()
-                },
+                onCheckedChange = { onClick() },
                 thumbContent = {
-                    if (checked) {
-                        SwitchIcon(Icons.Filled.Check)
-                    } else {
-                        SwitchIcon(Icons.Filled.Close)
-                    }
+                    SwitchIcon(if (checked) Icons.Filled.Check else Icons.Filled.Close)
                 },
                 colors = SwitchDefaults.colors(
                     checkedBorderColor = ON_BACKGROUND_COLOR,
@@ -346,11 +371,7 @@ private fun ChangeTheme(checked: Boolean, onClick: () -> Unit = {}) {
                     onClick()
                 },
                 thumbContent = {
-                    if (checked) {
-                        SwitchIcon(icon = Icons.Filled.DarkMode)
-                    } else {
-                        SwitchIcon(icon = Icons.Filled.LightMode)
-                    }
+                    SwitchIcon(if (checked) Icons.Filled.DarkMode else Icons.Filled.LightMode)
                 },
                 colors = SwitchDefaults.colors(
                     checkedBorderColor = ON_BACKGROUND_COLOR,
@@ -362,54 +383,6 @@ private fun ChangeTheme(checked: Boolean, onClick: () -> Unit = {}) {
                     uncheckedThumbColor = ON_BACKGROUND_COLOR,
                 )
             )
-        }
-    }
-}
-
-@Composable
-private fun SubCategory(
-    icon: ImageVector? = null,
-    @StringRes resId: Int = app_name,
-    extraValue: String? = null,
-    onClick: () -> Unit = {}
-) {
-    Box(modifier = Modifier.clickable {
-        onClick()
-    }) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { },
-                enabled = false
-            ) {
-                icon?.let {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = "Icon",
-                        tint = ON_BACKGROUND_COLOR
-                    )
-                }
-            }
-            Text(
-                text = stringResource(id = resId),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 10.dp)
-            )
-            extraValue?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall
-                        .copy(fontWeight = FontWeight.SemiBold),
-                    modifier = Modifier
-                        .padding(end = 10.dp)
-                        .alpha(0.6f)
-                )
-            }
         }
     }
 }
