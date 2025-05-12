@@ -62,6 +62,7 @@ import com.merp.jet.ig.downloader.R.string.lbl_remove_successfully
 import com.merp.jet.ig.downloader.R.string.lbl_save_successfully
 import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.HorizontalSpace
+import com.merp.jet.ig.downloader.components.IconType
 import com.merp.jet.ig.downloader.components.LoadingButton
 import com.merp.jet.ig.downloader.components.LoadingIconButton
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
@@ -231,7 +232,7 @@ fun ReelDownloaderCard(
 
     VideoCard(reelResponse = reelResponse, modifier = Modifier.scale(columnAnimation.value)) {
         LoadingIconButton(
-            icon = Filled.SaveAlt,
+            icon = IconType.Vector(Filled.SaveAlt),
             enabled = !isDownloading,
             isLoading = isDownloading
         ) {
@@ -240,7 +241,7 @@ fun ReelDownloaderCard(
         }
 
         LoadingIconButton(
-            icon = if (isSaved) Filled.BookmarkAdded else Filled.BookmarkBorder,
+            icon = IconType.Vector(if (isSaved) Filled.BookmarkAdded else Filled.BookmarkBorder),
             enabled = true,
             isLoading = false
         ) {

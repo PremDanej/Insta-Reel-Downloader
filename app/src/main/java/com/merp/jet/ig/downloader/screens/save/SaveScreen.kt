@@ -59,6 +59,7 @@ import com.merp.jet.ig.downloader.R.string.lbl_video_deleted
 import com.merp.jet.ig.downloader.components.BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.ON_BACKGROUND_COLOR
 import com.merp.jet.ig.downloader.components.CircularProgressBar
+import com.merp.jet.ig.downloader.components.IconType
 import com.merp.jet.ig.downloader.components.LoadingIconButton
 import com.merp.jet.ig.downloader.components.ScreenDefault
 import com.merp.jet.ig.downloader.components.VideoCard
@@ -89,14 +90,15 @@ fun ScreenContent(viewModel: SaveViewModel) {
     val clipboardManager = LocalClipboardManager.current
     val context: Context = LocalContext.current
 
-    when{
+    when {
         uiState.isLoading -> LoadingView()
         uiState.reels.isNotEmpty() -> ReelListView(
             reelList = uiState.reels,
             clipboardManager = clipboardManager,
             context = context,
-            onDelete = { viewModel.deleteSaveReel(it)}
+            onDelete = { viewModel.deleteSaveReel(it) }
         )
+
         else -> EmptyDataSet()
     }
 }
@@ -149,7 +151,7 @@ private fun ReelListView(
 fun EmptyDataSet() {
     val columnAnimation = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
-        columnAnimation.animateTo(1f,tween(200))
+        columnAnimation.animateTo(1f, tween(200))
     }
 
     Column(
@@ -208,13 +210,13 @@ private fun ActionButtons(
 
     LoadingIconButton(
         modifier = Modifier.rotate(-45f),
-        icon = Filled.Link,
+        icon = IconType.Vector(Filled.Link),
         enabled = !isDownloading,
         isLoading = false,
-        onclick = onCopy
+        onClick = onCopy
     )
     LoadingIconButton(
-        icon = Filled.SaveAlt,
+        icon = IconType.Vector(Filled.SaveAlt),
         enabled = !isDownloading,
         isLoading = isDownloading
     ) {
@@ -224,22 +226,22 @@ private fun ActionButtons(
         }
     }
     LoadingIconButton(
-        icon = Filled.DeleteOutline,
+        icon = IconType.Vector(Filled.DeleteOutline),
         enabled = !isDownloading,
         isLoading = false,
-        onclick = onDelete
+        onClick = onDelete
     )
     LoadingIconButton(
-        icon = painterResource(id = ic_instagram),
+        icon = IconType.PainterIcon(painterResource(id = ic_instagram)),
         enabled = !isDownloading,
         isLoading = false,
-        onclick = {
+        onClick = {
             onInstaOpen(context, reelResponse.url)
         }
     )
 }
 
-fun onInstaOpen(context: Context, url: String){
+fun onInstaOpen(context: Context, url: String) {
     val uri = Uri.parse(url)
     val intent = Intent(Intent.ACTION_VIEW, uri).setPackage("com.instagram.android")
     if (isIntentAvailable(context, intent)) {
